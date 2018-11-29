@@ -1,0 +1,16 @@
+package com.pyjh.clothing.service;
+
+import com.pyjh.clothing.entity.PageData;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ProductService {
+    /**
+     * 查询所有商品
+     *
+     * @return
+     */
+    Map<String,Object> getProduct(PageData pageData);
+
+}

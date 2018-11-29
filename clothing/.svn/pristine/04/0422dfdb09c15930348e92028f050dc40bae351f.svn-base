@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.OrderDao">
+    <!-- 查询订单信息 -->
+    <select id="getOrder" resultType="PageData">
+        SELECT * from product_order as po
+        JOIN product_order_detail as pod
+        ON po.order_code = pod.order_code
+        where 1 = 1
+        <if test="memberId != null">
+            and po.member_id = #{memberId}
+        </if>
+        <if test="franchiseeId != null">
+            and po.franchisee_id = #{franchiseeId}
+        </if>
+        <if test="orderCode != null">
+            and po.order_code = #{orderCode}
+        </if>
+    </select>
+
+    <insert id="addRecharge" parameterType="PageData">
+        insert into recharge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rechargeWay != null">
+                recharge_way,
+            </if>
+            <if test="balancePayId != null">
+                balance_pay_id,
+            </if>
+            <if test="rechargeNumber != null">
+                recharge_number,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rechargeWay != null">
+                #{recharge_way},
+            </if>
+            <if test="balancePayId != null">
+                #{balancePayId},
+            </if>
+            <if test="rechargeNumber != null">
+                #{rechargeNumber},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 查询全部订单和快递单 -->
+    <select id="getOrderEx" resultType="PageData">
+        SELECT
+        po.order_id,
+        po.order_code,
+        po.order_price,
+        po.order_note,
+        po.status,
+        po.create_time,
+        po.address_id,
+        e.express_name,
+        po.send_time,
+        a.area,
+        a.detail
+        FROM
+        product_order AS po JOIN express AS e ON po.express_id = e.express_id
+        INNER JOIN address AS a ON po.address_id = a.address_id
+        WHERE 1 = 1
+        <if test="order_code != null">
+            AND po.order_code = #{order_code}
+        </if>
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="getOrdercode" resultType="PageData" parameterType="String">
+        SELECT
+        po.order_id,
+        po.order_code,
+        po.order_price,
+        po.order_note,
+        po.status,
+        po.create_time,
+        po.address_id,
+        e.express_name,
+        po.send_time,
+        a.area,
+        a.detail
+        FROM
+        product_order AS po JOIN express AS e ON po.express_id = e.express_id
+        INNER JOIN address AS a ON po.address_id = a.address_id
+        WHERE po.order_code = #{order_code}
+    </select>
+
+    <!-- 查询全部快递名称 -->
+    <select id="getExpress" resultType="PageData">
+        SELECT * FROM express WHERE 1=1
+    </select>
+
+    <!-- 修改订单状态 -->
+    <update id="updateOrder" parameterType="Integer">
+        update product_order
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="express_id != null">
+                express_id = #{express_id},
+            </if>
+            <if test="express_number != null">
+                express_number = #{express_number},
+            </if>
+            <if test="send_time != null">
+                send_time = #{send_time},
+            </if>
+        </set>
+        where order_code = #{order_code}
+    </update>
+
+    <insert id="addOrder" parameterType="PageData">
+        insert into product_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                member_id,
+            </if>
+            <if test="franchiseeId != null">
+                franchisee_id,
+            </if>
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="orderNote != null">
+                order_note,
+            </if>
+            <if test="orderPrice != null">
+                order_price,
+            </if>
+            <if test="payWay != null">
+                pay_way,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="addressId != null">
+                address_id,
+            </if>
+            <if test="payAccount != null">
+                pay_account,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                #{memberId},
+            </if>
+            <if test="franchiseeId != null">
+                #{franchiseeId},
+            </if>
+            <if test="orderCode != null">
+                #{orderCode},
+            </if>
+            <if test="orderNote != null">
+                #{orderNote},
+            </if>
+            <if test="orderPrice != null">
+                #{orderPrice},
+            </if>
+            <if test="payWay != null">
+                #{payWay},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="addressId != null">
+                #{addressId},
+            </if>
+            <if test="payAccount != null">
+                #{payAccount},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="addOrderDetail" parameterType="PageData">
+        insert into product_order_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="productName != null">
+                product_name,
+            </if>
+            <if test="productSkuId != null">
+                product_sku_id,
+            </if>
+            <if test="productSkuName != null">
+                product_sku_name,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="product_sku_id != null">
+                product_sku_id,
+            </if>
+            <if test="product_sku_name != null">
+                product_sku_name,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderCode != null">
+                #{orderCode},
+            </if>
+            <if test="productId != null">
+                #{productId},
+            </if>
+            <if test="productName != null">
+                #{productName},
+            </if>
+            <if test="productSkuId != null">
+                #{productSkuId},
+            </if>
+            <if test="productSkuName != null">
+                #{productSkuName},
+            </if>
+            <if test="amount != null">
+                #{amount},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="product_sku_id != null">
+                #{product_sku_id},
+            </if>
+            <if test="product_sku_name != null">
+                #{product_sku_name},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="getMaxOrderId" resultType="Integer">
+        select MAX(order_id) from product_order
+    </select>
+
+    <select id="getOrderSku" resultType="PageData">
+        select * from  shop_order_sku
+         as sos join product_sku_value as psv on
+         sos.id = psv.value_id
+        where sos.order_id = #{orderId}
+    </select>
+</mapper>

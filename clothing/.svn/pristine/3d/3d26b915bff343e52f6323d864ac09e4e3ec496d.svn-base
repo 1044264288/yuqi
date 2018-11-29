@@ -1,0 +1,65 @@
+package com.pyjh.clothing.service;
+
+import com.pyjh.clothing.entity.PageData;
+
+import java.util.List;
+
+public interface MemberService {
+
+    /**
+     * 用户登陆
+     *
+     * @param mobile
+     * @param password
+     * @return
+     */
+    PageData memberLogin(String mobile, String password);
+
+    /**
+     * 查询全部用户信息
+     *
+     * @return
+     */
+    List<PageData> getmember();
+
+    /**
+     * 根据member_id查询用户是不是新用户
+     *
+     * @param member_id
+     * @return
+     */
+    PageData getMemberId(Integer member_id);
+
+    /**
+     * 查询是否存在
+     *
+     * @return
+     */
+    boolean findForEntity(String mobile);
+
+    /**
+     * 用户新增
+     *
+     * @param pageData
+     * @return
+     */
+    Integer addMember(PageData pageData);
+
+    /**
+     * 用户新增
+     *
+     * @param pageData
+     * @return
+     */
+    Integer editMember(PageData pageData);
+
+    /**
+     * 修改用户user_status状态
+     *
+     * @param member_id
+     * @param user_status
+     * @return
+     */
+    Integer updateMember(Integer member_id, Integer user_status);
+
+}

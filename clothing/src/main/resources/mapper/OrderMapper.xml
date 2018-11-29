@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.OrderDao">
+    <!-- 查询订单信息 -->
+    <select id="getOrder" resultType="PageData">
+        SELECT p.product_name,p.icon_url as product_icon,p.product_price,po.*,pod.* from product_order as po
+        JOIN product_order_detail as pod
+        ON po.order_code = pod.order_code
+        INNER JOIN product as p
+        on p.product_id=pod.product_id
+        where 1=1
+        <if test="memberId != null">
+            and po.member_id = #{memberId}
+        </if>
+        <if test="franchiseeId != null">
+            and po.franchisee_id = #{franchiseeId}
+        </if>
+        <if test="orderCode != null">
+            and po.order_code = #{orderCode}
+        </if>
+        <if test="status != null">
+            and po.status = #{status}
+        </if>
+        ORDER BY  po.create_time DESC
+    </select>
+
+    <insert id="addRecharge" parameterType="PageData">
+        insert into recharge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rechargeWay != null">
+                recharge_way,
+            </if>
+            <if test="balancePayId != null">
+                balance_pay_id,
+            </if>
+            <if test="rechargeNumber != null">
+                recharge_number,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rechargeWay != null">
+                #{recharge_way},
+            </if>
+            <if test="balancePayId != null">
+                #{balancePayId},
+            </if>
+            <if test="rechargeNumber != null">
+                #{rechargeNumber},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 查询全部订单和快递单 -->
+    <select id="getOrderEx" resultType="PageData">
+        SELECT
+        po.order_id,
+        po.order_code,
+        po.order_price,
+        po.order_note,
+        po.status,
+        po.create_time,
+        po.address_id,
+        e.express_name,
+        po.send_time,
+        a.area,
+        a.detail,
+        m.mobile
+        FROM
+        product_order AS po JOIN express AS e ON po.express_id = e.express_id
+        INNER JOIN address AS a ON po.address_id = a.address_id
+        INNER JOIN member AS m ON po.member_id=m.member_id
+        WHERE 1 = 1
+        <if test="order_code != null">
+            AND po.order_code = #{order_code}
+        </if>
+        ORDER BY  po.create_time DESC
+    </select>
+
+    <!-- 根据id查询 -->
+    <select id="getOrdercode" resultType="PageData" parameterType="String">
+        SELECT
+        po.order_id,
+        po.order_code,
+        po.order_price,
+        po.order_note,
+        po.status,
+        po.create_time,
+        po.address_id,
+        e.express_name,
+        po.send_time,
+        a.area,
+        a.detail
+        FROM
+        product_order AS po JOIN express AS e ON po.express_id = e.express_id
+        INNER JOIN address AS a ON po.address_id = a.address_id
+        WHERE po.order_code = #{order_code}
+    </select>
+
+    <!-- 查询全部快递名称 -->
+    <select id="getExpress" resultType="PageData">
+        SELECT * FROM express WHERE 1=1
+    </select>
+
+    <!-- 修改订单状态 -->
+    <update id="updateOrder" parameterType="Integer">
+        update product_order
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="express_id != null">
+                express_id = #{express_id},
+            </if>
+            <if test="express_number != null">
+                express_number = #{express_number},
+            </if>
+            <if test="send_time != null">
+                send_time = #{send_time},
+            </if>
+        </set>
+        where order_code = #{order_code}
+    </update>
+    <!-- 取消订单 -->
+    <update id="updateOrders" parameterType="Integer">
+        update product_order
+        SET   status = 6
+        where order_id = #{order_id}
+    </update>
+
+    <insert id="addOrder" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="order_id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into product_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                member_id,
+            </if>
+            <if test="franchiseeId != null">
+                franchisee_id,
+            </if>
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="orderNote != null">
+                order_note,
+            </if>
+            <if test="orderPrice != null">
+                order_price,
+            </if>
+            <if test="payWay != null">
+                pay_way,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="addressId != null">
+                address_id,
+            </if>
+            <if test="payAccount != null">
+                pay_account,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                #{memberId},
+            </if>
+            <if test="franchiseeId != null">
+                #{franchiseeId},
+            </if>
+            <if test="orderCode != null">
+                #{orderCode},
+            </if>
+            <if test="orderNote != null">
+                #{orderNote},
+            </if>
+            <if test="orderPrice != null">
+                #{orderPrice},
+            </if>
+            <if test="payWay != null">
+                #{payWay},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="addressId != null">
+                #{addressId},
+            </if>
+            <if test="payAccount != null">
+                #{payAccount},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="addOrderDetail" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="order_detail_id">
+            SELECT LAST_INSERT_ID() as order_detail_id
+        </selectKey>
+        insert into product_order_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="productName != null">
+                product_name,
+            </if>
+            <if test="productSkuId != null">
+                product_sku_id,
+            </if>
+            <if test="productSkuName != null">
+                product_sku_name,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="product_sku_id != null">
+                product_sku_id,
+            </if>
+            <if test="product_sku_name != null">
+                product_sku_name,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+            <if test="brede_context != null">
+                brede_context
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderCode != null">
+                #{orderCode},
+            </if>
+            <if test="productId != null">
+                #{productId},
+            </if>
+            <if test="productName != null">
+                #{productName},
+            </if>
+            <if test="productSkuId != null">
+                #{productSkuId},
+            </if>
+            <if test="productSkuName != null">
+                #{productSkuName},
+            </if>
+            <if test="amount != null">
+                #{amount},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="product_sku_id != null">
+                #{product_sku_id},
+            </if>
+            <if test="product_sku_name != null">
+                #{product_sku_name},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+            <if test="brede_context != null">
+                #{brede_context}
+            </if>
+        </trim>
+    </insert>
+
+    <select id="getMaxOrderId" resultType="Integer">
+        select MAX(order_id) from product_order
+    </select>
+
+    <select id="getOrderSku" resultType="PageData">
+        select * from  shop_order_sku
+         as sos join product_sku_value as psv on
+         sos.id = psv.value_id
+        where sos.order_id = #{orderId}
+    </select>
+
+    <!--查看订单详情 -->
+
+    <select id="findDetailId" resultType="PageData">
+        select m.mobile,m.nick_name,pol.*,p.product_name,p.product_price,p.icon_url,pod.amount,pod.order_detail_id
+        from
+        product_order as pol
+        INNER JOIN product_order_detail as pod
+        on  pol.order_code=pod.order_code
+        INNER JOIN product as p
+        ON p.product_id=pod.product_id
+        INNER JOIN member as m
+        on m.member_id =pol.member_id
+        where pol.order_id=#{order_id}
+    </select>
+
+
+
+    <!--点击发货，根据order_id，查看订单的收货信息 -->
+    <select id="findExpress" resultType="PageData">
+        SELECT pt.order_code,pt.express_id,pt.express_number ,s.express_name,s.express_code,m.mobile,a.* from
+        product_order as pt
+        INNER JOIN address as a
+        on pt.address_id=a.address_id
+        INNER JOIN member as m
+        on m.member_id=pt.member_id
+        INNER JOIN express as s
+        on s.express_id=pt.express_id
+        where pt.order_id=#{order_id}
+    </select>
+
+
+
+    <!--查看订单详情会员量体规格-->
+    <select id="findDetailSku" resultType="PageData">
+    SELECT
+        pod.order_code, pst.type_name ,pkv.sku_name ,pkv.content ,pkv.picture,c.*,ctv.`value`,ctv.content as mcontent
+        from
+    product_order_detail as pod
+    INNER JOIN shop_order_sku as sok
+    on sok.order_id=pod.order_detail_id
+    INNER JOIN product_sku_value as pkv
+    on pkv.value_id=sok.sku_id
+    INNER JOIN product_sku_type as pst
+    ON pst.type_id=pkv.sku_type_id
+    INNER JOIN product_order as pr
+    on pr.order_code=pod.order_code
+    INNER JOIN custom as c
+    on c.member_id =pr.member_id
+    INNER JOIN custom_value as cv
+    on cv.custom_id=c.id
+    INNER JOIN custom_type_value as ctv
+    on ctv.id=cv.value_id
+    where pod.order_detail_id=#{order_detail_id}
+</select>
+
+
+    <select id="findfor" resultType="PageData" parameterType="PageData">
+        select * from  product_order where order_code = #{order_code}
+    </select>
+
+   <!-- 根据订单号查询-->
+    <select id="queryProductByOrderCode" resultType="PageData" parameterType="PageData">
+   SELECT product_order.*,product_order_detail.*,
+ member.mobile,address.area,address.detail,express.express_name FROM
+          product_order AS product_order
+         JOIN product_order_detail AS product_order_detail
+         ON product_order.order_code = product_order_detail.order_code
+         INNER JOIN member AS member
+         ON member.member_id=product_order.member_id
+         INNER JOIN address AS address
+         ON product_order.address_id=address.address_id
+         INNER JOIN express AS express
+         ON express.express_id=product_order.express_id
+         AND product_order.order_code=#{order_code}
+    </select>
+
+    <!-- 通过状态查订单 -->
+    <select id="queryOrderByStatus" resultType="PageData" parameterType="PageData">
+        SELECT po.*,e.*,ad.*,m.mobile
+        FROM product_order po,express e,address ad,member m
+        WHERE po.express_id = e.express_id
+        AND po.address_id=ad.address_id
+        AND po.member_id=m.member_id
+        AND po.`status`=#{status}
+        ORDER BY po.create_time DESC
+    </select>
+
+    <!-- 通过手机号查商品订单 -->
+    <select id="queryProductBymobile" resultType="PageData" parameterType="PageData">
+     SELECT product_order.*,product_order_detail.*,
+     member.mobile,address.area,address.detail,express.express_name FROM
+          product_order AS product_order
+         JOIN product_order_detail AS product_order_detail
+         ON product_order.order_code = product_order_detail.order_code
+         INNER JOIN member AS member
+         ON member.member_id=product_order.member_id
+         INNER JOIN address AS address
+         ON product_order.address_id=address.address_id
+         INNER JOIN express AS express
+         ON express.express_id=product_order.express_id
+         AND member.mobile=#{mobile}
+    </select>
+
+    <!--查看订单详情规格-->
+    <select id="findDetailSkus" resultType="PageData">
+         SELECT DISTINCT
+              pod.order_code, pst.type_name ,pkv.sku_name ,pkv.content ,pkv.picture
+        from
+        product_order_detail as pod
+        INNER JOIN shop_order_sku as sok
+        on sok.order_id=pod.order_detail_id
+		INNER JOIN product_sku ps
+        on ps.id = sok.sku_id
+        INNER JOIN product_sku_value as pkv
+        on pkv.value_id=ps.sku_value_id
+        INNER JOIN product_sku_type as pst
+        ON pst.type_id=pkv.sku_type_id
+        where pod.order_detail_id=#{order_detail_id}
+    </select>
+    <!--查看订单详情会员量体信息-->
+    <select id="findDetailCustomInfo" resultType="PageData">
+        select DISTINCT c.*,ctv.`value`,ctv.content as mcontent,ct.type_name
+            from
+        product_order_detail as pod
+        INNER JOIN product_order as pr
+        on pr.order_code=pod.order_code
+        INNER JOIN custom as c
+        on c.member_id =pr.member_id
+        INNER JOIN custom_value as cv
+        on cv.custom_id=c.id
+        INNER JOIN custom_type_value as ctv
+        on ctv.id=cv.value_id
+            INNER JOIN custom_type as ct
+            on ct.type_id=ctv.type_id
+        where pod.order_detail_id=#{order_detail_id}
+		order by  c.create_time desc
+    </select>
+</mapper>

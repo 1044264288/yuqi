@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>授权跳转中</title>
+</head>
+<body >
+<p id="test"></p>
+</body>
+<script th:inline="javascript">
+    var custom_id = [[${custom_id}]];
+    document.getElementById("test").innerHTML = custom_id;
+    <!--alert("custom_id="+custom_id);-->
+    if (custom_id != null) {
+        location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU5ODY5MjQzMA==&scene=126#wechat_redirect";
+		//授权成功，跳转主页
+    } else if(custom_id == null){
+        location.href = "http://www.yuqibest.com/clothing/error.html"; //失败，跳转引导页
+    }
+</script>
+</html>

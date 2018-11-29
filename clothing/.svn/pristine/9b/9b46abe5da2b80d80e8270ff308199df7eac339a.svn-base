@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.ProductDao">
+
+
+    <!-- 查询所有商品 -->
+    <select id="getProduct" resultType="PageData">
+        SELECT
+        p.product_id,
+        p.product_name,
+        p.product_price,
+        pt.type_name,
+        pse.`name`,
+        p.`status`
+        FROM
+        ( product AS p INNER JOIN product_type AS pt ON p.product_type_id = pt.type_id )
+        INNER JOIN product_style AS pse ON p.product_style_id = pse.id
+        WHERE
+        1 = 1
+        <if test="corporateId != null and corporateId != ''">
+            and corporate_id = #{corporateId}
+        </if>
+        <if test="typeId != null and typeId != ''">
+            and product_type_id = #{typeId}
+        </if>
+        <if test="franId != null and franId != ''">
+            and franchisee_type_id = #{franId}
+        </if>
+        <if test="productId != null and productId != ''">
+            and product_id = #{productId}
+        </if>
+        <if test="recommend != null and recommend != ''">
+            and if_recommend = #{recommend}
+        </if>
+        <if test="styleId != null and styleId != ''">
+            and product_style_id = #{styleId}
+        </if>
+    </select>
+
+    <!-- 查询增加最大id -->
+    <select id="selectProduct" resultType="Integer">
+        SELECT MAX(product_id) FROM product
+        where 1=1
+    </select>
+
+    <!-- 根据id查询商品 -->
+    <select id="getProductId" resultType="PageData" parameterType="Integer">
+        SELECT
+        p.product_id,
+        p.product_name,
+	    p.product_price,
+	    p.if_activity,
+	    p.if_recommend,
+	    p.franchisee_type_id,
+	    pt.type_name,
+	    p.product_style_id,
+	    ps.`name`
+        FROM
+        product AS p
+	    INNER JOIN product_type AS pt ON p.product_type_id = pt.type_id
+        INNER JOIN product_style AS ps ON p.product_style_id = ps.id
+        WHERE
+        p.product_id = #{productId}
+    </select>
+
+    <!-- 增加商品 -->
+    <insert id="insertProduct" parameterType="Integer">
+        insert into product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="product_name != null">
+                product_name,
+            </if>
+            <if test="product_price != null">
+                product_price,
+            </if>
+            <if test="type_id != null">
+                product_type_id,
+            </if>
+            <if test="id != null">
+                product_style_id,
+            </if>
+            <if test="icon_url != null">
+                icon_url,
+            </if>
+            <if test="shelf_time != null">
+                shelf_time,
+            </if>
+            <if test="if_recommend != null">
+                if_recommend,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="product_name != null">
+                #{product_name},
+            </if>
+            <if test="product_price != null">
+                #{product_price},
+            </if>
+            <if test="type_id != null">
+                #{type_id},
+            </if>
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="icon_url != null">
+                #{icon_url},
+            </if>
+            <if test="shelf_time != null">
+                #{shelf_time},
+            </if>
+            <if test="if_recommend != null">
+                #{if_recommend},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改商品信息 -->
+    <update id="updateProduct" parameterType="Integer">
+        UPDATE product
+        <set>
+            <if test="product_name !=null">product_name=#{product_name},</if>
+            <if test="product_price != null">product_price=#{product_price},</if>
+            <if test="type_id != null">product_type_id=#{type_id},</if>
+            <if test="franchisee_type_id != null">,franchisee_type_id=#{franchisee_type_id},</if>
+            <if test="id != null">product_style_id=#{id},</if>
+            <if test="icon_url != null">icon_url=#{icon_url},</if>
+            <if test="if_activity != null">if_activity=#{if_activity},</if>
+            <if test="if_recommend != null">if_recommend=#{if_recommend},</if>
+        </set>
+        where product_id = #{product_id}
+    </update>
+
+    <delete id="deleteProductSku" parameterType="String">
+        delete from product_sku  where product_id=#{product_id}
+    </delete>
+
+    <!-- 修改商品状态 -->
+    <update id="updateProductStatus" parameterType="Integer">
+        UPDATE product
+        <set>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="status == 0">down_time = #{down_time},</if>
+            <if test="status == 1">shelf_time = #{shelf_time},</if>
+        </set>
+        WHERE product_id=#{product_id}
+    </update>
+
+
+    <!--  ProductBanner  -->
+    <!-- 根据商品id查询 -->
+    <select id="getProductBanner" resultType="PageData">
+        select b.banner_id,b.banner_url,b.if_video
+        from product AS p
+        join product_banner as b on b.product_id = p.product_id
+        where  p.product_id = #{productId}
+    </select>
+
+
+    <!-- 查询全部商品规格 -->
+    <select id="getProductSkuId" resultType="PageData">
+        SELECT
+	    pst.type_id,
+	    pst.type_name,
+	    psv.sku_type_id,
+	    psv.value_id,
+	    psv.sku_name,
+	    psv.content,
+	    psv.picture
+        FROM
+	    product_sku_value AS psv INNER JOIN product_sku_type AS pst ON psv.sku_type_id = pst.type_id
+    </select>
+
+    <select id="getProductDetail" resultType="PageData">
+        SELECT
+	    detail_id,
+		picture_url,
+		create_time
+        FROM
+	    product_detail
+        WHERE
+	    product_id = #{productId}
+    </select>
+
+    <select id="getProductType" resultType="PageData">
+        select * from product_type
+    </select>
+
+    <select id="getProductStyle" resultType="PageData">
+        select * from product_style
+    </select>
+
+    <select id="getProductSku" resultType="PageData">
+        SELECT
+        psk.type_id,
+        psk.type_name,
+        psv.value_id,
+        psv.sku_name
+        FROM
+        ( product_sku AS ps INNER JOIN product_sku_value psv ON ps.sku_value_id = psv.value_id )
+        INNER JOIN product_sku_type AS psk ON psv.sku_type_id = psk.type_id
+        where 1 = 1
+        <if test="_parameter != null">
+            and ps.product_id = #{_parameter}
+        </if>
+    </select>
+
+
+    <select id="getProductSkuType" resultType="PageData">
+        SELECT
+        psk.type_id,
+        psk.type_name,
+        COUNT(DISTINCT psk.type_name) as h
+        FROM
+        product_sku AS ps
+        INNER JOIN product_sku_value psv ON ps.sku_value_id = psv.value_id
+        INNER JOIN product_sku_type AS psk ON psv.sku_type_id = psk.type_id
+        WHERE
+        1 = 1
+        <if test="_parameter != null">
+            and ps.product_id = #{_parameter}
+        </if>
+        GROUP BY psk.type_name
+        ORDER BY psk.type_id
+    </select>
+
+    <select id="getProductSkuVal" resultType="PageData">
+        SELECT
+        psv.value_id,
+        psv.picture,
+        psv.sku_name,
+        psv.content,
+        psv.state
+        FROM
+        product_sku_value AS psv
+        JOIN product_sku AS ps ON ps.sku_value_id = psv.value_id
+        WHERE
+        sku_type_id = #{typeId}
+        <if test="productId != null">
+            AND ps.product_id = #{productId}
+        </if>
+        ORDER BY psv.value_id
+    </select>
+
+
+    <!-- 增加商品轮播图 -->
+    <insert id="insertProduct_banner" parameterType="PageData">
+        insert into product_banner(product_id,banner_url,if_video,create_time)
+        values (#{product_id},#{banner_url},#{if_video},#{create_time})
+    </insert>
+
+    <!-- 增加商品图片 -->
+    <insert id="insertProduct_detail" parameterType="PageData">
+        insert into product_detail(product_id,picture_url,create_time)
+        values (#{product_id},#{picture_url},#{create_time})
+    </insert>
+
+
+    <!-- 修改商品类型 -->
+    <update id="updateProductType" parameterType="PageData">
+        UPDATE product_type
+        <set>
+            <if test="type_name != null">type_name = #{type_name},</if>
+            <if test="update_time != null">update_time = #{update_time},</if>
+            <if test="if_show != null ">if_show = #{if_show},</if>
+        </set>
+        WHERE type_id = #{type_id}
+    </update>
+
+    <!-- 新增商品类型 -->
+    <insert id="insertProductType" parameterType="PageData">
+        INSERT INTO product_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type_name != null">
+                type_name,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type_name != null">
+                #{type_name},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 新增商品风格 -->
+    <insert id="insertProductStyle" parameterType="PageData">
+        INSERT INTO product_style
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                name,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改商品风格 -->
+    <update id="updateProductStyle" parameterType="PageData">
+        UPDATE product_style
+        <set>
+            <if test="state != null">state = #{state},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="update_time != null">update_time = #{update_time},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 新增商品规格 -->
+    <insert id="insertProductSku" parameterType="PageData">
+        INSERT INTO product_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="product_id != null">
+                product_id,
+            </if>
+            <if test="sku_value_id != null">
+                sku_value_id,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="product_id != null">
+                #{product_id},
+            </if>
+            <if test="sku_value_id != null">
+                #{sku_value_id},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改商品规格 -->
+    <update id="updateProductSku" parameterType="PageData">
+        update product_sku
+        <set>
+            <if test="sku_value_id != null">sku_value_id=#{sku_value_id},</if>
+        </set>
+        where product_id = #{product_id} and id = #{id}
+    </update>
+
+    <!-- 新增商品规格Value -->
+    <insert id="insertProductSkuValue" parameterType="PageData">
+        INSERT INTO product_sku_value
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sku_type_id != null">
+                sku_type_id,
+            </if>
+            <if test="sku_name != null">
+                sku_name,
+            </if>
+            <if test="picture != null">
+                picture,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="sku_type_id != null">
+                #{sku_type_id},
+            </if>
+            <if test="sku_name != null">
+                #{sku_name},
+            </if>
+            <if test="picture != null">
+                #{picture},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改商品规格Value -->
+    <update id="updateProductSkuValue" parameterType="PageData">
+        update product_sku_value
+        <set>
+            <if test="sku_type_id != null">sku_type_id=#{sku_type_id},</if>
+            <if test="sku_name != null">sku_name=#{sku_name},</if>
+            <if test="picture != null">picture=#{picture},</if>
+            <if test="state != null">state=#{state},</if>
+            <if test="content != null">content=#{content},</if>
+        </set>
+        where value_id = #{value_id}
+    </update>
+
+    <!-- 新增商品规格Type -->
+    <insert id="insertProductSkuType" parameterType="PageData">
+        INSERT INTO product_sku_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type_name != null">
+                type_name,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type_name != null">
+                #{type_name},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改商品规格Type -->
+    <update id="updateProductSkuType" parameterType="PageData">
+        update product_sku_type
+        <set>
+            <if test="type_name != null">type_name=#{type_name},</if>
+            <if test="update_time != null">update_time=#{update_time},</if>
+        </set>
+        where type_id = #{type_id}
+    </update>
+
+
+    <!-- 删除banner -->
+    <delete id="delectProduct_banner" parameterType="Integer">
+        delete from  product_banner where banner_id=#{banner_id}
+    </delete>
+
+    <!-- 删除Detail -->
+    <delete id="delectProduct_detail" parameterType="Integer">
+        delete from  product_detail where detail_id=#{detail_id}
+    </delete>
+
+    <!-- HomeBanner -->
+
+    <!-- 查询全部homebanner图片 -->
+    <select id="getHomeBanner" resultType="PageData">
+        SELECT * FROM home_banner
+    </select>
+
+    <!-- 增加homebanner图片 -->
+    <insert id="">
+        INSERT INTO home_banner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="banner_url != null">
+                banner_url,
+            </if>
+            <if test="target_url != null">
+                target_url,
+            </if>
+            <if test="create_time != null">
+                create_time,
+            </if>
+            <if test="if_video != null">
+                if_video,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="banner_url != null">
+                #{banner_url},
+            </if>
+            <if test="target_url != null">
+                #{target_url},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+            <if test="if_video != null">
+                #{if_video},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改homebanner图片状态 -->
+    <update id="updateHomeBanner" parameterType="PageData">
+        update home_banner
+        <set>
+            <if test="state">state=#{state},</if>
+            <if test="update_time">update_time=#{update_time},</if>
+        </set>
+        where home_banner_id = #{home_banner_id}
+    </update>
+
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.CouponsDao">
+
+    <!-- 根据当前时间查询优惠卷 -->
+    <select id="getCoupons" resultType="PageData" parameterType="String">
+        SELECT * FROM coupons WHERE
+        <if test="current_time != null">
+            <![CDATA[ create_time < #{current_time}]]>
+            AND  <![CDATA[ #{current_time} < end_time ]]>
+        </if>
+    </select>
+
+    <!-- 根据名字查询优惠卷 -->
+    <select id="getCouponsName" resultType="PageData" parameterType="String">
+        SELECT * FROM coupons WHERE
+        <if test="coupons_name != null">
+            coupons_name like '%${coupons_name}%'
+        </if>
+    </select>
+</mapper>

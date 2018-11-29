@@ -1,0 +1,38 @@
+/**
+ * _______________ *______________ *______________ *_____________ *____________ *____________ *___________ *__________ *________ *_______ *_______ *______ *_____ *____ *____ *___ *___ *___ *___ *____ *_____ *______ *________
+ */
+package com.pyjh.clothing.service.impl;
+
+import com.pyjh.clothing.dao.ProductDao;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.ProductService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service("productService")
+public class ProductServiceImpl implements ProductService {
+
+    @Resource
+    ProductDao productDao;
+
+    @Override
+    public Map<String, Object> getProduct(PageData pageData) {
+        Map<String, Object> res = new HashMap<>();
+        List<PageData> data = productDao.getProduct(pageData);
+        if (pageData.get("typeId") != null && pageData.get("franId") != null) {
+            res.put("res", "不能同时获取两种分类商品");
+            return res;
+        }
+        if (pageData.get("corporateId") != null && pageData.get("typeId") != null) {
+            res.put("res", "不能同时获取两种分类商品");
+            return res;
+        }
+        res.put("data", data);
+        return res;
+    }
+
+}

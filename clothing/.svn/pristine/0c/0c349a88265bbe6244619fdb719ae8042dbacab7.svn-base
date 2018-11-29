@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.CustomDao">
+    <select id="getCustomTypeByMember" resultType="PageData">
+        SELECT
+            mc.member_id,
+            ct.type_name,
+            cty.icon_url,
+            cty.`value`
+        FROM
+            member_custom AS mc
+        INNER JOIN custom_type_value AS cty ON mc.value_id = cty.id
+        INNER JOIN custom_type AS ct ON cty.type_id = ct.type_id
+        WHERE
+            member_id = #{memberId}
+    </select>
+    <select id="getCustomByMember" resultType="PageData">
+        SELECT c.*,m.nick_name  FROM
+            custom as c
+             INNER join member as m on m.member_id = c.member_id
+        WHERE
+             m.member_id = #{memberId}
+    </select>
+
+    <insert id="addCustomByMember" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into custom
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                member_id,
+            </if>
+            <if test="height != null">
+                height,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="chest != null">
+                chest,
+            </if>
+            <if test="waistCircumference != null">
+                waist_circumference,
+            </if>
+            <if test="hipCircumference != null">
+                hip_circumference,
+            </if>
+            <if test="kneeCircumference != null">
+                knee_circumference,
+            </if>
+            <if test="armLength != null">
+                arm_length,
+            </if>
+            <if test="longLegs != null">
+                long_legs,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                #{memberId},
+            </if>
+            <if test="height != null">
+                #{height},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="chest != null">
+                #{chest},
+            </if>
+            <if test="waistCircumference != null">
+                #{waistCircumference},
+            </if>
+            <if test="hipCircumference != null">
+                #{hipCircumference},
+            </if>
+            <if test="kneeCircumference != null">
+                #{kneeCircumference},
+            </if>
+            <if test="armLength != null">
+                #{armLength},
+            </if>
+            <if test="longLegs != null">
+                #{longLegs},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="editCustomByMember" parameterType="PageData">
+        update custom
+        <set>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="chest != null">
+                chest = #{chest},
+            </if>
+            <if test="waistCircumference != null">
+                waist_circumference = #{waistCircumference},
+            </if>
+            <if test="hipCircumference != null">
+                hip_circumference = #{hipCircumference}
+            </if>
+            <if test="kneeCircumference != null">
+                knee_circumference = #{kneeCircumference}
+            </if>
+            <if test="armLength != null">
+                arm_length = #{armLength},
+            </if>
+            <if test="longLegs != null">
+                long_legs = #{longLegs}
+            </if>
+        </set>
+        where member_id = #{memberId}
+        and id = #{cusId}
+    </update>
+</mapper>

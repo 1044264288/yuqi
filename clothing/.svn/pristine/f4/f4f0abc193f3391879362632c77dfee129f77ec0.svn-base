@@ -1,0 +1,31 @@
+spring.thymeleaf.cache=true
+spring.devtools.restart.enabled=true
+spring.devtools.restart.additional-paths=src/main/java
+server.port=9951
+#####################
+# MySQL             #
+#####################
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/clothing?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true		                         
+spring.datasource.username=root
+spring.datasource.password=root
+#spring.datasource.password=yuqibest81
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.druid.initial-size=1
+spring.datasource.druid.min-idle=1
+spring.datasource.druid.max-active=20
+spring.datasource.druid.test-on-borrow=true
+spring.datasource.druid.stat-view-servlet.allow=true
+
+#�����Ŀ��ͻ
+spring.jmx.default-domain=false
+####################
+# MyBtais          #
+####################
+mybatis.type-aliases-package=com.pyjh.clothing.entity
+mybatis.mapper-locations=classpath:mapper/*.xml
+logging.level.com.pyjh.clothing.dao=debug
+#pagehelper��ҳ�������
+pagehelper.helperDialect=mysql
+pagehelper.reasonable=true
+pagehelper.supportMethodsArguments=true
+pagehelper.params=count=countSql

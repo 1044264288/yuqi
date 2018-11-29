@@ -1,0 +1,240 @@
+package com.pyjh.clothing.wxpay.controller;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.MemberService;
+import com.pyjh.clothing.service.OrderService;
+import com.pyjh.clothing.service.ProductService;
+import com.pyjh.clothing.util.OrderNoUtil;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller("WXbalance")
+@RequestMapping("/wx/balance")
+public class BalancePayController {
+
+    @Resource
+    MemberService memberService;
+
+    @Resource
+    ProductService productService;
+
+    @Resource
+    OrderService orderService;
+
+    /**
+     * 余额支付，生成订单，订单详情，如果成功，
+     * 1：返回用户（密码支付）
+     */
+    @RequestMapping(value = "/balancePay", method = {RequestMethod.POST,
+            RequestMethod.GET}, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public Object BalancePay(HttpServletRequest request, HttpServletResponse response,
+                             @RequestParam(value = "member_id", required = false) Integer member_id,
+                             @RequestParam(value = "address_id", required = false) Integer address_id,
+                             @RequestParam(value = "payWay", required = false) String pay_way,
+                             @RequestParam(value = "BuyWay", required = false) String BuyWay,
+                             @RequestParam(value = "messages", required = false) String messages,
+                             @RequestParam(value = "order_id", required = false) Integer order_id) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> date = new HashMap<String, Object>();
+        // request.getParameterMap(): 获取购物车（商品集合）的product_id（产品id）和amount(数量)
+        Map<String, String[]> requestParams = request.getParameterMap();
+        // 遍历
+        for (Iterator iter = requestParams.entrySet().iterator(); iter.hasNext(); ) {
+            Map.Entry element = (Map.Entry) iter.next();
+            // key值
+            String strKey = (String) element.getKey();
+            // value,数组形式
+            String[] value = (String[]) element.getValue();
+
+            String valueStr = "";
+            for (int i = 0; i < value.length; i++) {
+                valueStr = (i == value.length - 1) ? valueStr + value[i] : valueStr + value[i] + ",";
+            }
+
+            params.put(strKey, valueStr);
+        }
+        if (!params.isEmpty() && params.size() > 0) {
+
+            String a = (String) params.get("product_ids");
+            String b = (String) params.get("amounts");
+            String[] strarr1 = a.split(",");
+            int[] product_ids = new int[strarr1.length];
+            for (int i = 0; i < strarr1.length; i++) {
+                product_ids[i] = Integer.parseInt(strarr1[i]);
+            }
+            String[] strarr2 = b.split(",");
+            int[] amounts = new int[strarr2.length];
+            for (int i = 0; i < strarr2.length; i++) {
+                amounts[i] = Integer.parseInt(strarr2[i]);
+            }
+            String out_trade_no = "";//订单号
+            try {
+                // 支付账户
+                PageData pMember = memberService.getMemberId(member_id);
+                String payMember = pMember.getString("mobile");
+                PageData pOrder = new PageData();
+                double order_price = 0;
+                // 3.1封装数据
+                double[] prices = new double[amounts.length];
+                String[] names = new String[amounts.length];
+                for (int i = 0; i < amounts.length; i++) {
+                    PageData pProduct = new PageData();
+                    pProduct.put("product_id", product_ids[i]);
+                    Map<String, Object> product = productService.getProduct(pProduct);
+                    prices[i] = (Double) product.get("product_price");
+                    names[i] = product.get("product_name").toString();
+                    // 单个产品总价
+                    order_price = order_price + (Double) product.get("product_price") * amounts[i];
+                }
+                // 生成订单号，唯一,例：201807021607465eaa88330
+                out_trade_no = OrderNoUtil.getOrderNo();
+
+                PageData pOne = new PageData();
+                while (true) {
+                    pOne.put("order_code", out_trade_no);
+                    List<PageData> order = orderService.getOrder(pOne);
+                    if (order.get(0) == null) {
+                        break;
+                    }
+                    out_trade_no = OrderNoUtil.getOrderNo();
+                }
+                pOrder = new PageData();
+                // 送货上们就加地址
+                if ("送货上门".equals(BuyWay)) {
+                    pOrder.put("address_id", address_id);
+                } else {
+                    pOrder.put("address_id", 0);
+                }
+                pOrder.put("memberId", member_id);
+                pOrder.put("payWay", pay_way);
+                pOrder.put("orderPrice", order_price);
+                pOrder.put("status", 1);//未支付
+                pOrder.put("payAccount", payMember);
+                pOrder.put("orderCode", out_trade_no);
+                pOrder.put("orderNote", messages);
+                // 生成订单
+                int rowP = orderService.addOrder(pOrder);
+                //  System.out.println("插入订单表row:" + rowP);
+                PageData pDetail = null;
+                for (int i = 0; i < amounts.length; i++) {
+                    pDetail = new PageData();
+                    pDetail.put("orderCode", out_trade_no);
+                    pDetail.put("productId", product_ids[i]);
+                    pDetail.put("productName", names[i]);
+                    pDetail.put("price", prices[i]);
+                    pDetail.put("amount", amounts[i]);
+                    // 生成订单详情
+                    int rowPod = orderService.addOrderDetail(pDetail);
+                    System.out.println("插入订单详情表row：" + rowPod);
+                }
+                //如果成功，返回密码是否存在，true：存在，false：不存在
+                date.put("pay_passwordIsExist", pMember.getString("pay_password") == null ? "false" : "true");
+            } catch (Exception e) {
+                //logger.warn(e);
+                return null;
+            }
+        } else {
+            //参数存在异常或者为空
+            return null;
+        }
+        return null;
+    }
+    /*
+     *//**
+     * 修改支付密码获取手机验证码
+     *
+     * @param mobile 手机账号 String
+     * @return status 状态码 "200"发送成功 "701"短信发送失败
+     *//*
+    @RequestMapping(value = "/forgetPwd/code", method = {RequestMethod.POST,
+            RequestMethod.GET}, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public Object registerCode(@Param("mobile") String mobile, HttpServletRequest request, HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        Map<String, Object> data = new HashMap<String, Object>();
+        session = request.getSession();
+        PageData pd = new PageData();
+        pd.put("mobile", mobile);
+        try {
+            if (memberService.findforEntity(pd) == null) {
+                return ResponseEnum.ACCOUNTS_EXIST_NO.toString();
+            }
+        } catch (Exception e) {
+            logger.warn(e);
+            return ResponseEnum.DATA_OPERATION_FAILED.toString();
+        }
+        // 获取随机验证码
+        String code = Tools.getRandomNum();
+        String resultString = SmsClientSend.sendSms(mobile, code);
+        int Rspcode = Tools.SmsClientSendCode(resultString);
+        if (Rspcode == 0) {
+            session.setAttribute("forgetPwdCode", code);
+            data.put("forgetPwdCode", code);
+            return ResponseEnum.SUCCESS.appendObject(data);
+        } else {
+            return ResponseEnum.SERVER_SMS_SEND_FAIL.toString();
+        }
+
+    }
+
+    *//**
+     * 支付忘记密码
+     *
+     * @param mobile       用户手机号
+     * @param pay_password 新支付密码
+     * @param registercode 验证码
+     * @param request
+     * @return
+     *//*
+    @RequestMapping(value = "/forgetPwd", method = {RequestMethod.POST,
+            RequestMethod.GET}, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public Object forgetPwd(@Param("mobile") String mobile, @Param("pay_password") String pay_password,
+                            @Param("forgetPwdCode") String forgetPwdCode, HttpServletRequest request, HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        if (mobile == null || pay_password == null || forgetPwdCode == null) {
+            return ResponseEnum.ARGUMENT_ERROR.toString();
+        }
+        //判断账号是否存在
+        PageData pd = new PageData();
+        pd.put("mobile", mobile);
+        try {
+            //账号不存在
+            if (memberService.findforEntity(pd) == null) {
+                return ResponseEnum.ACCOUNTS_EXIST_NO.toString();
+            }
+            //判断手机验证码是否正确
+            String mobileCode = "";
+            try {
+                mobileCode = (String) session.getAttribute("forgetPwdCode");
+                if (!mobileCode.equals(forgetPwdCode)) {
+                    return ResponseEnum.CAPTCHA_ERROR.toString();
+                }
+            } catch (Exception e) {
+                logger.warn(e);
+                return ResponseEnum.SESSION_IS_NULL.toString();
+            }
+            //修改数据
+            pd.put("pay_password", pay_password);
+            memberService.update(pd);
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }*/
+
+}

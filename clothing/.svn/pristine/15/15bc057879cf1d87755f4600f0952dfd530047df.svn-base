@@ -1,0 +1,38 @@
+package com.pyjh.clothing.service;
+
+import com.pyjh.clothing.entity.PageData;
+
+import java.util.List;
+
+public interface CustomService {
+
+    /**
+     * 根据id查询体量类型信息
+     *
+     * @return
+     */
+    List<PageData> getCustomTypeByMember(Integer memberId);
+
+    /**
+     * 根据id查询体量信息
+     *
+     * @return
+     */
+    PageData getCustomByMember(Integer memberId);
+
+    /**
+     * 修改用户体量信息
+     *
+     * @return
+     */
+    boolean editCustomByMember(PageData pageData);
+
+    /**
+     * 用户量体信息录入
+     *
+     * @param pageData
+     * @return
+     */
+    boolean addCustomByMember(PageData pageData);
+
+}

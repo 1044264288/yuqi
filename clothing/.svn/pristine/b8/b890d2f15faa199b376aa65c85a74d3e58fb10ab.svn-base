@@ -1,0 +1,43 @@
+/**
+ * _______________ *______________ *______________ *_____________ *____________ *____________ *___________ *__________ *________ *_______ *_______ *______ *_____ *____ *____ *___ *___ *___ *___ *____ *_____ *______ *________
+ */
+package com.pyjh.clothing.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.ProductService;
+import com.pyjh.clothing.util.CodeMessage;
+import com.pyjh.clothing.util.Message;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.Map;
+
+@Api("商品")
+@RestController
+@RequestMapping("product")
+public class ProductController extends CodeMessage {
+
+    @Resource
+    ProductService productService;
+
+    @ApiOperation("获取商品信息")
+    @RequestMapping(value = "/getProduct", method =  RequestMethod.GET)
+    public String getProductList(Integer corporateId,Integer typeId,Integer franId,Integer productId,Integer recommend) {
+        PageData pageData = new PageData();
+        pageData.put("corporateId",corporateId);
+        pageData.put("typeId",typeId);
+        pageData.put("franId",franId);
+        pageData.put("productId",productId);
+        pageData.put("recommend",recommend);
+        Map<String,Object> resMap = productService.getProduct(pageData);
+        if(resMap.get("data") == null){
+            return Message.mesFalse(code_501,resMap.get("res").toString());
+        }
+        return Message.mesTrue(code_200, JSON.toJSONString(resMap.get("data")),message_200);
+    }
+}

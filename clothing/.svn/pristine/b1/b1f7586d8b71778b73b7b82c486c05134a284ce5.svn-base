@@ -1,0 +1,38 @@
+package com.pyjh.clothing.service;
+
+import com.pyjh.clothing.entity.PageData;
+
+public interface MemberService {
+
+    /**
+     * 用户登陆
+     *
+     * @param pageData
+     * @return
+     */
+    PageData memberLogin(String mobile,String password);
+
+    /**
+     * 查询是否存在
+     *
+     * @return
+     */
+    boolean findForEntity(String mobile);
+
+    /**
+     * 用户新增
+     *
+     * @param pageData
+     * @return
+     */
+    Integer addMember(PageData pageData);
+
+    /**
+     * 用户新增
+     *
+     * @param pageData
+     * @return
+     */
+    Integer editMember(PageData pageData);
+
+}

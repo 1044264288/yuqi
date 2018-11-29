@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.MemberDao">
+    <select id="memberLogin" resultType="PageData" parameterType="PageData">
+      select * from member where mobile = #{mobile} and password = #{password}
+    </select>
+
+    <select id="findForEntity" resultType="PageData" parameterType="PageData">
+        select * from  member where
+        <if test="mobile != null ">
+            mobile = #{mobile}
+        </if>
+
+
+    </select>
+
+    <select id="findForEntity1" resultType="PageData" parameterType="PageData">
+        select * from  member where
+        <if test="member_id != null ">
+            member_id = #{member_id}
+        </if>
+    </select>
+<!-- 查看所有，-->
+
+    <select id="getmember" resultType="PageData">
+        SELECT
+	   *
+        FROM
+	    member AS m
+        WHERE 1 =1
+        <if test="query_key != null and query_key != ''">
+            and
+            (
+            m.nick_name like CONCAT('%', #{query_key},'%')
+            or
+            m.mobile like CONCAT('%', #{query_key},'%')
+            )
+        </if>
+    </select>
+
+    <!--根据ID查看用户的信息 -->
+    <select id="FindMemberId" resultType="PageData" parameterType="PageData">
+         SELECT DISTINCT
+        m.*,c.name,c.create_time as c_create_time,ctv.content,ctv.icon_url,ctv.`value`,ct.sex,ct.type_name
+        FROM member AS m
+        INNER JOIN custom as c
+        on c.member_id=m.member_id
+        INNER JOIN custom_value as cv
+        on cv.custom_id=c.id
+        INNER JOIN custom_type_value as ctv
+        on ctv.id=cv.value_id
+        INNER JOIN custom_type as ct
+        on ct.type_id=ctv.type_id
+        where m.member_id=#{member_id}
+		order by c.create_time desc
+</select>
+
+
+    <insert id="addMember" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="member_id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into member
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mobile != null">
+                mobile,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="nick_name != null">
+                nick_name,
+            </if>
+            <if test="pay_password != null">
+                pay_password,
+            </if>
+            <if test="birthday != null">
+                birthday,
+            </if>
+            <if test="mailbox != null">
+                mailbox,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mobile != null">
+                #{mobile},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="nickName != null">
+                #{nick_name},
+            </if>
+            <if test="payPassword != null">
+                #{pay_password},
+            </if>
+            <if test="birthday != null">
+                #{birthday},
+            </if>
+            <if test="mailbox != null">
+                #{mailbox},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="editMember" parameterType="PageData">
+        update member
+        <set>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="nickName != null">
+                nick_name = #{nickName,jdbcType=VARCHAR},
+            </if>
+            <if test="payPassword != null">
+                pay_password = #{payPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday,jdbcType=INTEGER}
+            </if>
+            <if test="mailbox != null">
+                mailbox = #{mailbox,jdbcType=INTEGER}
+            </if>
+        </set>
+        where member_id = #{memberId,jdbcType=INTEGER}
+    </update>
+
+    <!-- 根据member_id查询用户是不是新用户 -->
+    <select id="getMemberId" resultType="PageData" parameterType="Integer">
+        SELECT * FROM member
+        where member_id = #{member_id}
+    </select>
+
+    <!-- 修改用户user_status状态 -->
+    <update id="updateMember" parameterType="Integer">
+        update member
+        <set>
+            user_status = #{user_status}
+        </set>
+        where member_id = #{member_id}
+    </update>
+
+    <!-- 修改用户status状态 -->
+    <update id="updateMeberID" parameterType="PageData">
+        update member
+        set
+        status = #{status}
+        where member_id = #{member_id}
+    </update>
+
+    <!--查询余额-->
+    <select id="getbalance" resultType="PageData" parameterType="PageData">
+        select balance from  member where  member_id = #{member_id}
+    </select>
+
+
+    <select id="findForEntity2" resultType="PageData" parameterType="PageData">
+        select * from  member where  mobile = #{mobile}
+    </select>
+    <!-- 修改支付密码-->
+    <update id="updateMemberpay_password" parameterType="PageData">
+        update member
+        set
+        pay_password = #{pay_password}
+        where mobile = #{mobile}
+    </update>
+</mapper>

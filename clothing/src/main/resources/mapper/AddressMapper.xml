@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.AddressDao">
+
+    <select id="getMemberAddress" resultType="PageData">
+        select * from address
+        where create_member_id = #{memberId}
+    </select>
+
+    <insert id="addMemberAddress" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                create_member_id,
+            </if>
+            <if test="consignee != null">
+                consignee,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="area != null">
+                area,
+            </if>
+            <if test="detail != null">
+                detail,
+            </if>
+            <if test="ifDefault != null">
+                if_default,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                #{memberId},
+            </if>
+            <if test="consignee != null">
+                #{consignee},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="area != null">
+                #{area},
+            </if>
+            <if test="detail != null">
+                #{detail},
+            </if>
+            <if test="ifDefault != null">
+                #{ifDefault},
+            </if>
+            <if test="createTime != null">
+                #{create_time}
+            </if>
+        </trim>
+    </insert>
+
+    <update id="editMemberAddress" parameterType="PageData">
+        update address
+        <set>
+            <if test="consignee != null">
+                consignee = #{consignee},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="area != null">
+                area = #{area},
+            </if>
+            <if test="detail != null">
+                detail = #{detail},
+            </if>
+            <if test="ifDefault != null">
+                if_default = #{ifDefault},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        where create_member_id = #{memberId}
+        and address_id = #{addressId}
+    </update>
+
+    <delete id="deleteMemAddress" parameterType="Integer">
+        delete from address where address_id = #{addressId}
+    </delete>
+
+    <select id="findforEntity" resultType="PageData">
+        select * from address
+        where address_id = #{address_id}
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+/**
+ * _______________ *______________ *______________ *_____________ *____________ *____________ *___________ *__________ *________ *_______ *_______ *______ *_____ *____ *____ *___ *___ *___ *___ *____ *_____ *______ *________
+ */
+package com.pyjh.clothing.dao;
+
+import com.pyjh.clothing.entity.PageData;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface MemberDao {
+
+    /**
+     * 用户登陆
+     *
+     * @param pageData
+     * @return
+     */
+    PageData memberLogin(PageData pageData);
+
+    /**
+     * 查询是否存在
+     *
+     * @return
+     */
+    PageData findForEntity(PageData pageData);
+
+    /**
+     * 用户新增
+     *
+     * @param pageData
+     * @return
+     */
+    Integer addMember(PageData pageData);
+
+    /**
+     * 用户新增
+     *
+     * @param pageData
+     * @return
+     */
+    Integer editMember(PageData pageData);
+
+}

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.CouponsDao">
+
+    <!-- 根据当前时间查询优惠卷 -->
+    <select id="getCoupons" resultType="PageData" parameterType="String">
+        SELECT * FROM coupons WHERE
+        <if test="current_time != null">
+            <![CDATA[ create_time < #{current_time}]]>
+            AND  <![CDATA[ #{current_time} < end_time ]]>
+        </if>
+    </select>
+
+    <!-- 根据名字查询优惠卷 -->
+    <select id="getCouponsName" resultType="PageData" parameterType="String">
+        SELECT * FROM coupons WHERE
+        <if test="coupons_name != null">
+            coupons_name like '%${coupons_name}%'
+        </if>
+    </select>
+
+    <!--查询新用户优惠券 ,根据member_id 查看是否领取-->
+    <select id="newCoupons" resultType="PageData" >
+        select ec.ec_id,ec.ec_code,ct.*,ctp.discount_amount,c.*
+        fROM coupons as c
+        INNER JOIN coupons_type_price as ctp
+        ON c.ctp_id=ctp.ctp_id
+        INNER JOIN coupons_type as ct
+        on ct.type_id=ctp.type_id
+        INNER JOIN exchange_coupon as ec
+        ON ec.co_id=c.coupons_id
+        where ct.type_id  =3
+        and c.coupons_id IN (1,2,3)
+        <if test="ctp_id != null">
+            and ctp.ctp_id  =#{ctp_id}
+        </if>
+        <if test="member_id != null">
+            and ec.member_id  =#{member_id}
+        </if>
+        <if test="memberId != null">
+            and ec.member_id is NULL
+        </if>
+        LIMIT 3
+    </select>
+
+<!-- 用户领取优惠券，添加优惠券-->
+
+    <update id="updateMember" parameterType="PageData">
+        UPDATE exchange_coupon as ec
+        set ec.member_id =#{member_id},
+        ec.update_time=#{update_time},
+        ec.`status`=#{status}
+        where ec.ec_id=#{ec_id}
+    </update>
+
+    <!-- 查询个人所有优惠券 -->
+    <select id="listExchange" parameterType="PageData" resultType="PageData">
+        SELECT ec.ec_id,ec.ec_code,ec.`status`,co.coupons_id ,co.coupons_name,
+        co.limit_number,co.inventory,ct.type_id,ct.type_name,
+        co.create_time,co.end_time,co.service_conditions,ctp.discount_amount
+        FROM exchange_coupon ec,coupons co,coupons_type_price ctp,coupons_type ct
+        WHERE ec.co_id = co.coupons_id
+        AND co.ctp_id = ctp.ctp_id
+        AND ctp.type_id=ct.type_id
+        <if test="member_id != null and member_id !='' ">
+            AND ec.member_id = #{member_id}
+        </if>
+        <if test="ec_id != null and ec_id !='' ">
+            AND ec.ec_id=#{ec_id}
+        </if>
+        ORDER BY ec.ec_id DESC
+    </select>
+
+</mapper>

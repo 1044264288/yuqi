@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="pyjhOA:war">
+    <output-path>$PROJECT_DIR$/../pyjhOA/target</output-path>
+    <root id="archive" name="pyjhOA-2.0.4.RELEASE.war">
+      <element id="artifact" artifact-name="pyjhOA:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,47 @@
+/**
+ * _______________ *______________ *______________ *_____________ *____________ *____________ *___________ *__________ *________ *_______ *_______ *______ *_____ *____ *____ *___ *___ *___ *___ *____ *_____ *______ *________
+ */
+package com.pyjh.clothing.service.impl;
+
+import com.pyjh.clothing.dao.MemberDao;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.MemberService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+@Service("memberService")
+public class MemberServiceImpl implements MemberService {
+
+    @Resource
+    MemberDao memberDao;
+
+    @Override
+    public PageData memberLogin(String mobile, String password) {
+        PageData pageData = new PageData();
+        pageData.put("mobile", mobile);
+        pageData.put("password", password);
+        return memberDao.memberLogin(pageData);
+    }
+
+    @Override
+    public boolean findForEntity(String mobile) {
+        PageData pageData = new PageData();
+        pageData.put("mobile", mobile);
+        if (memberDao.findForEntity(pageData) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Integer addMember(PageData pageData) {
+        return memberDao.addMember(pageData);
+    }
+
+    @Override
+    public Integer editMember(PageData pageData) {
+        return memberDao.editMember(pageData);
+    }
+
+}

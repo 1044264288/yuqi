@@ -1,0 +1,585 @@
+
+package com.pyjh.clothing.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.ProductService;
+import com.pyjh.clothing.util.CodeMessage;
+import com.pyjh.clothing.util.DateTime;
+import com.pyjh.clothing.util.Message;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+@CrossOrigin(value = "*")
+@RestController
+@RequestMapping(value = "product")
+@Api(value = "product", description = "商品接口")
+public class ProductController extends CodeMessage {
+
+    @Resource
+    ProductService productService;
+
+    @ApiOperation("获取商品信息")
+    @RequestMapping(value = "/getProduct", method = RequestMethod.GET)
+    public String getProductList(Integer corporateId, Integer typeId, Integer franId,
+                                 Integer productId, Integer recommend, Integer styleId) {
+        PageData pageData = new PageData();
+        pageData.put("corporateId", corporateId);
+        pageData.put("typeId", typeId);
+        pageData.put("franId", franId);
+        pageData.put("productId", productId);
+        pageData.put("recommend", recommend);
+        pageData.put("styleId", styleId);
+        Map<String, Object> resMap = productService.getProduct(pageData);
+        if (resMap.get("data") == null) {
+            return Message.mesFalse(code_501, resMap.get("res").toString());
+        }
+        return Message.mesTrue(code_200, JSON.toJSONString(resMap.get("data")), message_200);
+    }
+
+    @ApiOperation("根据商品id查询商品规格详情")
+    @RequestMapping("getProductIdSku")
+    public String getProductIdSku(Integer product_id) {
+        System.out.println(product_id);
+        if (product_id == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        Map<String, Object> datamap = new HashMap<>();
+        List<PageData> productSkus = productService.getProductSku(product_id);
+        List<PageData> productSku = productService.getProductSku(null);
+        PageData pageData = new PageData();
+        PageData res = null;
+        List<PageData> datas = new ArrayList<>();
+        for (PageData skuval : productSku) {
+            String key = skuval.get("type_name").toString();
+            pageData.put("typeId", Integer.parseInt(skuval.get("type_id").toString()));
+            List<PageData> val = productService.getProductSkuVal(pageData);
+            for (int a = 0; a < val.size(); a++) {
+                val.get(a).put("status", 0);
+            }
+            res = new PageData();
+            res.put("key", key);
+            res.put("val", val);
+            datas.add(res);
+        }
+        if (datamap != null) {
+            datamap.put("productSkus", productSkus);
+            datamap.put("datas", datas);
+            return Message.mesTrue(code_200, JSON.toJSONString(datamap), message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("修改商品规格信息")
+    //@PutMapping("/updateProduct")
+    @PostMapping("/updateProduct")
+    public String updateProduct(String product_id,String sku_value_id) {
+        if(product_id == null){
+            System.out.println(product_id);
+            System.out.println(sku_value_id);
+            return Message.mesFalse(code_400, message_400);
+        }
+        if(sku_value_id == null){
+            System.out.println(product_id);
+            System.out.println(sku_value_id);
+            return Message.mesFalse(code_400, message_400);
+        }
+        String[] aa = sku_value_id.split(",");
+        if (aa == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        PageData pageData1 = new PageData();
+        int a = 0;
+        productService.deleteProductSku(product_id);
+        for (int i = 0;i<aa.length;i++){
+            pageData1.put("sku_value_id",aa[i]);
+            pageData1.put("product_id",product_id);
+            pageData1.put("create_time",DateTime.GetNowDate());
+            Integer updatesku = productService.insertProductSku(pageData1);
+            if(updatesku > 0){
+                a++;
+            }
+        }
+        if (a == aa.length) {
+            String data = JSON.toJSONString(a);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("修改商品基本信息")
+    @PostMapping("/updateProducts")
+    public String updateProducts(@RequestParam String pageData) {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        Integer i = productService.updateProduct(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询商品基本信息")
+    @GetMapping(value = "getProductId")
+    public String getProductId(@RequestParam Integer product_id){
+        Map<String, Object> datamap = new HashMap<>();
+        List<PageData> bannerData = productService.getProductBanner(product_id);
+        List<PageData> detailData = productService.getProductDetail(product_id);
+        List<PageData> productType = productService.getProductType();
+        List<PageData> productStyle = productService.getProductStyle();
+        PageData productid = productService.getProductId(product_id);
+        datamap.put("bannerData",bannerData);
+        datamap.put("detailData",detailData);
+        datamap.put("productType",productType);
+        datamap.put("productStyle",productStyle);
+        datamap.put("productid",productid);
+        if(datamap != null){
+            return Message.mesTrue(code_200, JSON.toJSONString(datamap), message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询新增商品规格参数")
+    @GetMapping("getProductsum")
+    public String getProductsum() {
+        Map<String, Object> datamap = new HashMap<>();
+        List<PageData> productSku = productService.getProductSkuType(null);
+        PageData pageData = new PageData();
+        PageData res = null;
+        List<PageData> datas = new ArrayList<>();
+        for (PageData skuval : productSku) {
+            String key = skuval.get("type_name").toString();
+            pageData.put("typeId", Integer.parseInt(skuval.get("type_id").toString()));
+            List<PageData> val = productService.getProductSkuVal(pageData);
+            for (int a = 0; a < val.size(); a++) {
+                val.get(a).put("status", 0);
+            }
+            res = new PageData();
+            res.put("key", key);
+            res.put("val", val);
+            datas.add(res);
+        }
+        datamap.put("datas", datas);
+        if (datamap != null) {
+            String data = JSON.toJSONString(datamap);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询商品Type,Style")
+    @GetMapping(value = "/getProductTypeStyle")
+    public String getProductTypeStyle(){
+        List<PageData> pageDataType = productService.getProductType();
+        List<PageData> pageDataStyle = productService.getProductStyle();
+        Map map = new HashMap();
+        map.put("pageDataType",pageDataType);
+        map.put("pageDataStyle",pageDataStyle);
+        if(map != null){
+            String data = JSON.toJSONString(map);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("增加商品基本信息")
+    @PostMapping("/insertProduct")
+    public String insertProduct(@RequestParam String pageData,@RequestParam MultipartFile icon_url) throws Exception {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("icon_url",DateTime.imgUrl(icon_url));
+        pageData1.put("shelf_time", DateTime.GetNowDate());
+        Integer i = productService.insertProduct(pageData1);
+        if (i != null) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("新增商品规格")
+    @PostMapping(value = "insertProductSku")
+    public String insertProductSku(Integer product_id, String sku_value_id){
+        String[] aa = sku_value_id.split(",");
+        if (aa == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        PageData pageData1 = new PageData();
+        Integer a = 0;
+        for (int i = 0;i<aa.length;i++){
+            pageData1.put("sku_value_id",aa[i]);
+            pageData1.put("product_id",product_id);
+            pageData1.put("create_time", DateTime.GetNowDate());
+            if(productService.insertProductSku(pageData1) > 0){
+                a++;
+            }
+        }
+        if(a == aa.length){
+            String data = JSON.toJSONString(a);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+
+
+
+
+    @ApiOperation("新增banner图")
+    @PostMapping("insertProduct_banner")
+    public String insertProduct_banner(@RequestParam String pageData,@RequestParam MultipartFile[] banner_url) throws Exception {
+        try {
+            List<PageData> listpageData = JSON.parseArray(pageData,PageData.class);
+            System.out.println(listpageData);
+            if (listpageData == null) {
+                return Message.mesFalse(code_400, message_400);
+            }
+            PageData pageData1 = new PageData();
+            Integer a = 0;
+            for (int i = 0; i < banner_url.length; i++) {
+                String back = DateTime.imgUrl(banner_url[i]);
+                pageData1.put("create_time", DateTime.GetNowDate());
+                pageData1.put("banner_url", back);
+                pageData1.put("if_video", listpageData.get(i).get("if_video"));
+                pageData1.put("product_id", listpageData.get(i).get("product_id"));
+                if (productService.insertProduct_banner(pageData1) > 0) {
+                    a++;
+                }
+            }
+            if (a == banner_url.length) {
+                String data = JSON.toJSONString(a);
+                return Message.mesTrue(code_200, data, message_200);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("删除banner图")
+    @DeleteMapping(value = "delectProduct_banner")
+    public String delectProduct_banner(@RequestParam String banner_id){
+        String[] aa = banner_id.split(",");
+        int a = 0;
+        for (int i = 0;i<aa.length;i++){
+            Integer delectbanner = productService.delectProduct_banner(aa[i]);
+            if(delectbanner != null){
+                a++;
+            }
+        }
+        if(a == aa.length){
+            String data = JSON.toJSONString(a);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("增加商品图片")
+    @PostMapping("insertProduct_detail")
+    public String insertProduct_detail(@RequestParam String pageData, @RequestParam MultipartFile[] picture_url) throws Exception {
+        List<PageData> listpageData = JSON.parseArray(pageData,PageData.class);
+        if (listpageData == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        PageData pageData1 = new PageData();
+        Integer a = 0;
+        for (int i = 0; i < picture_url.length; i++) {
+            pageData1.put("create_time", DateTime.GetNowDate());
+            pageData1.put("picture_url", DateTime.imgUrl(picture_url[i]));
+            pageData1.put("product_id", listpageData.get(i).get("product_id"));
+            if (productService.insertProduct_detail(pageData1) > 0) {
+                a++;
+            }
+        }
+        if (a == picture_url.length) {
+            String data = JSON.toJSONString(a);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("删除detail图")
+    @DeleteMapping(value = "delectProduct_detail")
+    public String delectProduct_detail(@RequestParam String detail_id){
+        String[] aa = detail_id.split(",");
+        int a = 0;
+        for (int i = 0;i<aa.length;i++){
+            Integer delectbanner = productService.delectProduct_detail(aa[i]);
+            if(delectbanner != null){
+                a++;
+            }
+        }
+        if(a == aa.length){
+            String data = JSON.toJSONString(a);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("修改商品状态")
+    @PutMapping("/updateProductStatus")
+    public String updateProductStatus(@RequestParam String pageData) {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        if (pageData1.get("status").equals(0)) {
+            pageData1.put("down_time", DateTime.GetNowDate());
+        } else {
+            pageData1.put("shelf_time", DateTime.GetNowDate());
+        }
+        Integer i = productService.updateProductStatus(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("新增商品类型")
+    @PostMapping("/insertProductType")
+    public String insertProductType(@RequestParam String pageData) {
+        System.out.println(pageData);
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("create_time", DateTime.GetNowDate());
+        Integer i = productService.insertProductType(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("新增商品风格")
+    @PostMapping("/insertProductStyle")
+    public String insertProductStyle(@RequestParam String pageData) {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("create_time", DateTime.GetNowDate());
+        Integer i = productService.insertProductStyle(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("修改商品类型")
+    @PutMapping("/updateProductType")
+    public String updateProductType(@RequestParam String pageData) {
+        System.out.println(pageData);
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("update_time", DateTime.GetNowDate());
+        Integer i = productService.updateProductType(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("修改商品风格")
+    @PutMapping(value = "/updateProductStyle")
+    public String updateProductStyle(@RequestParam String pageData) {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("update_time", DateTime.GetNowDate());
+        System.out.println(JSON.toJSONString(pageData1));
+        Integer i = productService.updateProductStyle(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询商品分类")
+    @PostMapping("getProductType")
+    public String getProductType() {
+        List<PageData> pageData = productService.getProductType();
+        if (pageData != null) {
+            String data = JSON.toJSONString(pageData);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询商品风格")
+    @RequestMapping(value = "getProductStyle")
+    public String getProductStyle() {
+        List<PageData> pageData = productService.getProductStyle();
+        if (pageData != null) {
+            String data = JSON.toJSONString(pageData);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询商品规格")
+    @GetMapping("getProductSku")
+    public String getProductSku() {
+        List<PageData> productSku = productService.getProductSkuType(null);
+        PageData pageData = new PageData();
+        PageData res = null;
+        List<PageData> data = new ArrayList<>();
+        for (PageData skuval : productSku) {
+            //String key = skuval.get("type_name").toString();
+            pageData.put("typeId", Integer.parseInt(skuval.get("type_id").toString()));
+            List<PageData> val = productService.getProductSkuVal(pageData);
+            for (int a = 0; a < val.size(); a++) {
+                System.out.println("ssss");
+                val.get(a).put("status", 0);
+            }
+            res = new PageData();
+            skuval.put("val",val);
+            res.put("key", skuval);
+            //res.put("val", val);
+            data.add(res);
+        }
+        if (pageData != null) {
+            // String data = JSON.toJSONString(pageData);
+            return Message.mesTrue(code_200, JSON.toJSONString(data), message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("查询首页banner图")
+    @GetMapping("getHomeBanner")
+    public String getHomeBanner() {
+        List<PageData> pageDataList = productService.getHomeBanner();
+        if (pageDataList != null) {
+            String data = JSON.toJSONString(pageDataList);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("增加首页banner图")
+    @PostMapping("insertHomeBanner")
+    public String insertHomeBanner(@RequestParam String pageData) {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        pageData1.put("create_time", DateTime.GetNowDate());
+        Integer i = productService.insertHomeBanner(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("修改首页banner图状态")
+    @PutMapping("updateHomeBanner")
+    public String updateHomeBanner(@RequestParam String pageData) {
+        PageData pageData1 = JSON.parseObject(pageData, PageData.class);
+        pageData1.put("update_time", DateTime.GetNowDate());
+        Integer i = productService.updateHomeBanner(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("查询全部商品规格")
+    @GetMapping("getProductSkuId")
+    //@RequestMapping("getProductSkuId")
+    public String getProductSkuId() {
+
+        List<PageData> pageDataList = productService.getProductSkuId();
+        if (pageDataList != null) {
+            String data = JSON.toJSONString(pageDataList);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("新增商品规格Type")
+    @PostMapping("insertProductSkuType")
+    public String insertProductSkuType(@RequestParam String PageData) {
+        PageData pageData1 = JSON.parseObject(PageData, PageData.class);
+        if (pageData1 != null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("create_time", DateTime.GetNowDate());
+        Integer i = productService.insertProductSkuType(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("新增商品规格Value")
+    @PostMapping("insertProductSkuValue")
+    public String insertProductSkuValue(@RequestParam String PageData, @RequestParam MultipartFile picture) throws Exception {
+        PageData pageData1 = JSON.parseObject(PageData, PageData.class);
+        if (pageData1 != null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("create_time", DateTime.GetNowDate());
+        pageData1.put("picture", DateTime.imgUrl(picture));
+        Integer i = productService.insertProductSkuValue(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("修改商品规格Type")
+    @PutMapping("updateProductSkuType")
+    public String updateProductSkuType(@RequestParam String PageData) {
+        PageData pageData1 = JSON.parseObject(PageData, PageData.class);
+        if (pageData1 != null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        pageData1.put("update_time", DateTime.GetNowDate());
+        Integer i = productService.updateProductSkuType(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+
+    @ApiOperation("修改商品规格Value")
+    @PutMapping(value = "updateProductSkuValue")
+    public String updateProductSkuValue(String PageData){
+        if(PageData == null){
+            return Message.mesTrue(code_400, PageData, message_400);
+        }
+        PageData pageData1 = JSON.parseObject(PageData, PageData.class);
+        if (pageData1 == null) {
+            return Message.mesFalse(code_400, message_400);
+        }
+        Integer i = productService.updateProductSkuValue(pageData1);
+        if (i > 0) {
+            String data = JSON.toJSONString(i);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_400, message_400);
+    }
+}

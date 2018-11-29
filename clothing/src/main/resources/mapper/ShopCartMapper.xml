@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.ShopCartDao">
+    <select id="getMemberShopCart" resultType="PageData">
+        SELECT
+            s.shop_cart_id,
+            s.product_amount,
+            m.member_id,
+            p.product_id,
+            p.product_name,
+            p.product_price,
+            p.icon_url
+        FROM
+            shop_cart AS s
+        JOIN member AS m ON m.member_id = s.create_member_id
+        JOIN product AS p ON p.product_id = s.product_id
+        WHERE
+            s.create_member_id = #{memberId}
+    </select>
+
+    <select id="getMaxShopCart" resultType="Integer">
+        SELECT
+           MAX(shop_cart_id)
+        FROM
+            shop_cart
+    </select>
+
+    <insert id="addMemberShopCart" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="shop_cart_id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into shop_cart
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                create_member_id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="productAmount != null">
+                product_amount,
+            </if>
+            <if test="create_time != null">
+                create_time
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                #{memberId},
+            </if>
+            <if test="productId != null">
+                #{productId},
+            </if>
+            <if test="productAmount != null">
+                #{productAmount},
+            </if>
+            <if test="create_time != null">
+                #{create_time}
+            </if>
+        </trim>
+    </insert>
+
+    <update id="editMemberShopCart" parameterType="PageData">
+        update shop_cart
+        <set>
+            <if test="productId != null">
+                product_id = #{productId},
+            </if>
+            <if test="productAmount != null">
+                produc_amount = #{productAmount},
+            </if>
+        </set>
+        where create_member_id = #{memberId}
+        and shop_cart_id = #{shopCartId}
+    </update>
+
+    <delete id="deleteMemChopCart" parameterType="Integer">
+        delete from shop_cart where shop_cart_id = #{shopCartId}
+    </delete>
+
+    <insert id="addShopOrderSku" parameterType="PageData">
+        insert into shop_order_sku
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cartId != null">
+                cart_id,
+            </if>
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="skuId != null">
+                sku_id
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="cartId != null">
+                #{cartId},
+            </if>
+            <if test="orderId != null">
+                #{orderId},
+            </if>
+            <if test="skuId != null">
+                #{skuId},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateShopChartSku" parameterType="PageData">
+        update shop_order_sku
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId},
+            </if>
+        </set>
+        where cart_id = #{cartId}
+    </update>
+
+    <select id="getCartSku" resultType="PageData">
+
+
+        select * from shop_order_sku
+        as sos
+        join product_sku
+        as ps
+        on sos.sku_id=ps.id
+        join product_sku_value as psv
+        on psv.value_id=ps.sku_value_id
+        where sos.cart_id = #{cartId}
+    </select>
+    <select id="findforEntity" resultType="PageData">
+      <choose>
+          <when test="create_member_id != null">
+              SELECT * FROM shop_cart
+              where create_member_id = #{create_member_id}
+                AND product_id=#{product_id}
+          </when>
+          <otherwise>
+              SELECT * FROM shop_cart
+              where shop_cart_id = #{shop_cart_id}
+          </otherwise>
+      </choose>
+
+    </select>
+    <delete id="delete" parameterType="PageData">
+        DELETE
+        FROM
+        shop_cart
+        WHERE
+        shop_cart_id =#{shop_cart_id}
+    </delete>
+</mapper>

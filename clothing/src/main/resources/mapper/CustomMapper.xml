@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.CustomDao">
+    <!--查看个人的最新的量体信息-->
+    <select id="getCustomTypeByMember" resultType="PageData">
+        SELECT
+        mc.member_id,
+        ct.type_name,
+        cty.icon_url,
+        cty.`value`
+        FROM
+        member_custom AS mc
+        INNER JOIN custom_type_value AS cty ON mc.value_id = cty.id
+        INNER JOIN custom_type AS ct ON cty.type_id = ct.type_id
+        WHERE
+        member_id = #{memberId}
+    </select>
+    <!-- 个人的最新量体信息 -->
+    <select id="getCustomByMember" resultType="PageData">
+        SELECT c.*,m.nick_name  FROM
+        custom as c
+        INNER join member as m on m.member_id = c.member_id
+        WHERE
+        m.member_id = #{memberId}
+        <if test="state != null">
+            and  c.state=#{state}
+        </if>
+        ORDER BY c.create_time DESC
+        LIMIT 1
+    </select>
+    <select id="newCustomAll" resultType="PageData">
+        SELECT c.*,m.nick_name  FROM
+        custom as c
+        INNER join member as m on m.member_id = c.member_id
+        WHERE
+        c.member_id = #{memberId}
+        <if test="state != null">
+            AND c.state= #{state}
+        </if>
+        ORDER BY c.isDefault DESC
+    </select>
+    <!--查看个人的最新的量体信息-->
+    <select id="newCustom" resultType="PageData">
+        SELECT  mc.member_id,mc.id,
+        ct.type_name,
+        ctv.icon_url,
+        ctv.`value`
+        FROM custom AS mc
+        INNER JOIN custom_value as cv
+        ON cv.custom_id=mc.id
+        INNER JOIN custom_type_value as ctv
+        on ctv.id=cv.value_id
+        INNER JOIN custom_type as ct
+        on ct.type_id=ctv.type_id
+        WHERE
+        mc.id =  #{id}
+    </select>
+
+
+
+    <select id="getCustomByMember1" resultType="PageData">
+        SELECT c.*,m.nick_name  FROM
+        custom as c
+        INNER join member as m on m.member_id = c.member_id
+        WHERE
+        m.member_id = #{memberId}
+       ORDER BY c.create_time DESC
+        LIMIT 1
+    </select>
+    <update id="updateUnionid" parameterType="PageData">
+        <choose>
+            <when test="id != null">
+                update custom set
+                unionid = #{unionid} where id=#{id}
+            </when>
+            <when test="member_id != null">
+                update custom set
+                member_id = #{member_id} where unionid=#{unionid}
+            </when>
+        </choose>
+
+    </update>
+    <!-- 添加到 custom——value-->
+    <insert id="addCustomByMember" parameterType="PageData">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="custom_id">
+            SELECT LAST_INSERT_ID() as custom_id
+        </selectKey>
+        insert into custom
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                member_id,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="height != null">
+                height,
+            </if>
+            <if test="weight != null">
+                weight,
+            </if>
+            <if test="breadth != null">
+                breadth,
+            </if>
+            <if test="breadthing != null">
+                breadthing,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="chest != null">
+                chest,
+            </if>
+            <if test="waistCircumference != null">
+                waist_circumference,
+            </if>
+            <if test="hipCircumference != null">
+                hip_circumference,
+            </if>
+            <if test="kneeCircumference != null">
+                knee_circumference,
+            </if>
+            <if test="armLength != null">
+                arm_length,
+            </if>
+            <if test="longLegs != null">
+                long_legs,
+            </if>
+            <if test="s_arm_right != null">
+                s_arm_right,
+            </if>
+            <if test="s_cross != null">
+                s_cross,
+            </if>
+            <if test="s_distance != null">
+                s_distance,
+            </if>
+            <if test="s_max_balley != null">
+                s_max_balley,
+            </if>
+            <if test="s_neck_girth != null">
+                s_neck_girth,
+            </if>
+            <if test="s_neck_height != null">
+                s_neck_height,
+            </if>
+            <if test="s_waist_height != null">
+                s_waist_height,
+            </if>
+            <if test="s_waist_buttock != null">
+                s_waist_buttock,
+            </if>
+            <if test="s_picture != null">
+                s_picture,
+            </if>
+            <if test="s_phone != null">
+                s_phone,
+            </if>
+            <if test="only_code != null">
+                only_code,
+            </if>
+            <if test="machine_number != null">
+                machine_number,
+            </if>
+
+            <if test="s_cross_height != null">
+                s_cross_height,
+            </if>
+            <if test="s_buttock_height != null">
+                s_buttock_height,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">
+                #{memberId},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="height != null">
+                #{height},
+            </if>
+            <if test="weight != null">
+                #{weight},
+            </if>
+            <if test="breadth != null">
+                #{breadth},
+            </if>
+            <if test="breadthing != null">
+                #{breadthing},
+            </if>
+            <if test="state != null">
+                #{state},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="chest != null">
+                #{chest},
+            </if>
+            <if test="waistCircumference != null">
+                #{waistCircumference},
+            </if>
+            <if test="hipCircumference != null">
+                #{hipCircumference},
+            </if>
+            <if test="kneeCircumference != null">
+                #{kneeCircumference},
+            </if>
+            <if test="armLength != null">
+                #{armLength},
+            </if>
+            <if test="longLegs != null">
+                #{longLegs},
+            </if>
+
+            <if test="s_arm_right != null">
+                #{s_arm_right},
+            </if>
+            <if test="s_cross != null">
+                #{s_cross},
+            </if>
+            <if test="s_distance != null">
+                #{s_distance},
+            </if>
+            <if test="s_max_balley != null">
+                #{s_max_balley} ,
+            </if>
+            <if test="s_neck_girth != null">
+                #{s_neck_girth},
+            </if>
+            <if test="s_neck_height != null">
+                #{s_neck_height},
+            </if>
+            <if test="s_waist_height != null">
+                #{s_waist_height} ,
+            </if>
+            <if test="s_waist_buttock != null">
+                #{s_waist_buttock},
+            </if>
+
+            <if test="s_picture != null">
+                #{s_picture},
+            </if>
+            <if test="s_phone != null">
+                #{s_phone},
+            </if>
+            <if test="only_code != null">
+                #{only_code},
+            </if>
+            <if test="machine_number != null">
+                #{machine_number},
+            </if>
+            <if test="s_cross_height != null">
+                #{s_cross_height},
+            </if>
+            <if test="s_buttock_height != null">
+                #{s_buttock_height},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 更新到 custom——value-->
+   <!-- <update id="updateCustomByMember" parameterType="PageData">
+        update custom
+        <set>
+            <if test="name != null">
+                name=#{name},
+            </if>
+            <if test="height != null">
+                height=#{height},
+            </if>
+            <if test="weight != null">
+                weight=#{weight},
+            </if>
+            <if test="breadth != null">
+                breadth=#{breadth},
+            </if>
+            <if test="state != null">
+                state=#{state},
+            </if>
+            <if test="chest != null">
+                chest=#{chest},
+            </if>
+            <if test="waistCircumference != null">
+                waist_circumference=#{waistCircumference},
+            </if>
+            <if test="hipCircumference != null">
+                hip_circumference=#{hipCircumference},
+            </if>
+            <if test="kneeCircumference != null">
+                knee_circumference=#{kneeCircumference},
+            </if>
+            <if test="armLength != null">
+                arm_length=#{armLength},
+            </if>
+            <if test="longLegs != null">
+                long_legs=#{longLegs},
+            </if>
+
+        </set>
+        where member_id=#{memberId}
+    </update>-->
+
+    <insert id="addCustomValue" parameterType="PageData">
+        insert into custom_value
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="custom_id != null">
+                custom_id,
+            </if>
+            <if test="value_id != null">
+                value_id,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="custom_id != null">
+                #{custom_id},
+            </if>
+            <if test="value_id != null">
+                #{value_id},
+            </if>
+
+        </trim>
+    </insert>
+
+
+<!-- 后台管理 修改量体信息根据ID-->
+
+    <update id="editCustomByMember" parameterType="PageData">
+        update custom
+        <set>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="chest != null">
+                chest = #{chest},
+            </if>
+            <if test="waistCircumference != null">
+                waist_circumference = #{waistCircumference},
+            </if>
+            <if test="hipCircumference != null">
+                hip_circumference = #{hipCircumference}
+            </if>
+            <if test="kneeCircumference != null">
+                knee_circumference = #{kneeCircumference}
+            </if>
+            <if test="armLength != null">
+                arm_length = #{armLength},
+            </if>
+            <if test="longLegs != null">
+                long_legs = #{longLegs}
+            </if>
+        </set>
+        where member_id = #{memberId}
+        and id = #{cusId}
+    </update>
+
+
+
+    <update id="editCustom" parameterType="PageData">
+        update custom
+        <set>
+            <if test="height != null">
+                height = #{height},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="chest != null">
+                chest = #{chest},
+            </if>
+            <if test="waistCircumference != null">
+                waist_circumference = #{waistCircumference},
+            </if>
+            <if test="hipCircumference != null">
+                hip_circumference = #{hipCircumference}
+            </if>
+            <if test="kneeCircumference != null">
+                knee_circumference = #{kneeCircumference}
+            </if>
+            <if test="armLength != null">
+                arm_length = #{armLength},
+            </if>
+            <if test="longLegs != null">
+                long_legs = #{longLegs}
+            </if>
+
+            <if test="s_arm_right != null">
+                s_arm_right = #{s_arm_right},
+            </if>
+            <if test="s_cross != null">
+                s_cross = #{s_cross},
+            </if>
+            <if test="s_distance != null">
+                s_distance = #{s_distance}
+            </if>
+            <if test="s_max_balley != null">
+                s_max_balley = #{s_max_balley}
+            </if>
+            <if test="s_neck_girth != null">
+                s_neck_girth = #{s_neck_girth},
+            </if>
+            <if test="s_neck_height != null">
+                s_neck_height = #{s_neck_height}
+            </if>
+            <if test="s_waist_height != null">
+                s_waist_height = #{s_waist_height},
+            </if>
+            <if test="s_waist_buttock != null">
+                s_waist_buttock = #{s_waist_buttock},
+            </if>
+        </set>
+        where id=#{id}
+
+    </update>
+
+
+    <select id="findforValues" parameterType="PageData" resultType="PageData">
+        select * from custom_type_value as cty
+        where 1=1
+        <if test="id!=type_id">and cty.type_id=#{type_id}</if>
+
+    </select>
+
+    <select id="findforEntity" parameterType="PageData" resultType="PageData">
+        select * from custom where id=#{id}
+    </select>
+
+    <select id="findforList" parameterType="PageData" resultType="PageData">
+        select * from custom
+        where 1=1
+        <if test="type==2">
+           and  unionid is  null
+            and member_id is  null
+        </if>
+        <if test="id!=null">and id=#{id}</if>
+        ORDER BY create_time DESC
+    </select>
+
+
+
+    <!-- 模糊查询量体,根据ID查看-->
+    <select id="findforTypes" parameterType="PageData" resultType="PageData">
+        select * from custom_type as ct
+
+        where 1=1
+        <if test="sex!=null">and ct.sex!=#{sex}</if>
+        <if test="query_key != null and query_key != ''">
+            and
+            (
+            ct.type_name like CONCAT('%', #{query_key},'%')
+            )
+        </if>
+        <if test="type_id!=null">
+            and ct.type_id=#{type_id}
+        </if>
+    </select>
+    <!-- 模糊查询量体值，根据ID查看-->
+    <select id="findforTypeValues" parameterType="PageData" resultType="PageData">
+        select * from custom_type as ct
+        INNER JOIN custom_type_value as ctv
+        on ct.type_id=ctv.type_id
+        where 1=1
+        <if test="id!=null">
+            and ctv.id=#{id}
+        </if>
+        <if test="query_key != null and query_key != ''">
+            and
+            (
+            ct.type_name like CONCAT('%', #{query_key},'%')
+            or
+            ctv.content like CONCAT('%', #{query_key},'%')
+            or
+            ctv.`value` like CONCAT('%', #{query_key},'%')
+            )
+        </if>
+    </select>
+    <!-- 添加到 custom——type里面-->
+    <insert id="addCustomtype" parameterType="PageData">
+        insert into custom_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type_name != null">
+                type_name,
+            </if>
+            <if test="sex != null">
+                sex
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type_name != null">
+                #{type_name},
+            </if>
+            <if test="sex != null">
+                #{sex}
+            </if>
+
+        </trim>
+    </insert>
+    <!-- 添加到 custom——type_value里面-->
+    <insert id="addCustomtypevalue" parameterType="PageData">
+        insert into custom_type_value
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type_id != null">
+                type_id,
+            </if>
+            <if test="value != null">
+                value,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="icon_url != null">
+                icon_url
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type_id != null">
+                #{type_id},
+            </if>
+            <if test="value != null">
+                #{value},
+            </if>
+            <if test="content != null">
+                #{content},
+            </if>
+            <if test="icon_url != null">
+                #{icon_url}
+            </if>
+        </trim>
+    </insert>
+
+<!--  修改量体类型-->
+    <update id="editCustomtype" parameterType="PageData">
+        update custom_type
+        <set>
+            <if test="sex != null">
+                sex = #{sex},
+            </if>
+            <if test="type_name != null">
+                type_name = #{type_name},
+            </if>
+            <if test="state != null">
+                state = #{state}
+            </if>
+
+        </set>
+        where type_id = #{type_id}
+    </update>
+
+    <!--  修改量体类型值-->
+    <update id="editCustomtypeValue" parameterType="PageData">
+        update custom_type_value
+        <set>
+            <if test="type_id != null">
+                type_id=#{type_id},
+            </if>
+            <if test="value != null">
+                value=#{value},
+            </if>
+            <if test="content != null">
+                content=#{content},
+            </if>
+            <if test="icon_url != null">
+                icon_url=#{icon_url},
+            </if>
+            <if test="state != null">
+                state = #{state}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+<!-- 根据机器编号，查看最新的一条数据 -->
+
+    <select id="firstcustom" parameterType="PageData" resultType="PageData">
+        select * FROM custom as c
+        where c.machine_number=#{machine_number}
+        ORDER BY c.create_time DESC
+        LIMIT 1
+
+    </select>
+
+    <select id="findMaxId" resultType="java.lang.Integer">
+        select max(id) from custom
+    </select>
+
+    <delete id="deleteCustomById" parameterType="Integer" >
+        delete from custom where id = #{id}
+    </delete>
+
+    <select id="getMemberById" resultType="Integer">
+        select member_id from custom where id = #{id}
+    </select>
+
+    <update id="updateIsDefaultToZeroByMemberId" parameterType="Integer">
+        UPDATE custom set isDefault = 0 where member_id = #{memberId}
+    </update>
+
+    <update id="updateIsDefaultById" parameterType="Integer">
+        UPDATE custom set isDefault = 1 where id = #{id}
+    </update>
+</mapper>

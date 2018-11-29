@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.RechargeDao">
+    <insert id="insertrecharge_priceByrecharge" parameterType="PageData">
+        insert into recharge(
+        create_member_id,
+        recharge_way,
+        balance_pay_id,
+        recharge_number,
+        create_time,
+        status
+        ) values (
+        #{create_member_id},
+        #{recharge_way},
+        #{balance_pay_id},
+        #{recharge_number},
+        #{create_time},
+        #{status}
+        )
+    </insert>
+    <insert id="save" parameterType="PageData">
+        insert into balance_pay_amount(
+        amount,
+        )values(
+        #{amount}
+        )
+    </insert>
+
+    <update id="update" parameterType="PageData">
+        update recharge set status=#{status}
+        where
+        recharge_number=#{recharge_number} and
+        create_member_id = #{create_member_id}
+    </update>
+
+    <!--查询消费记录-->
+    <select id="getByID" parameterType="PageData" resultType="PageData">
+        select* from recharge where recharge_id=#{recharge_id}
+    </select>
+    <!--查询消费记录和消费明细-->
+    <select id="findForEntity" parameterType="PageData" resultType="PageData">
+        SELECT bp.amount,bp.given_money,bp.create_time,r.recharge_way,r.create_time,r.balance_pay_id,p.* FROM
+        recharge r,balance_pay_amount bp,product_order p
+        WHERE p.member_id=r.`create_member_id`
+              AND r.balance_pay_id=bp.id
+              AND r.create_member_id=#{member_id}
+        ORDER BY r.create_time DESC
+        LIMIT 0 , 10
+    </select>
+
+
+</mapper>

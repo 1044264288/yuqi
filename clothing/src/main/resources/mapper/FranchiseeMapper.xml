@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.FranchiseeDao">
+
+    <!-- 增加店铺 -->
+    <insert id="insertFranchisee" parameterType="PageData">
+        insert into franchisee
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="serial_number != null">serial_number,</if>
+            <if test="franchisee_name != null">franchisee_name,</if>
+            <if test="responsible_person_name != null">responsible_person_name,</if>
+            <if test="franchisee_account != null">franchisee_account,</if>
+            <if test="franchisee_pssword != null">franchisee_pssword,</if>
+            <if test="mobile != null">mobile,</if>
+            <if test="franchisee_region != null">franchisee_region,</if>
+            <if test="addr_province != null">addr_province,</if>
+            <if test="addr_city != null">addr_city,</if>
+            <if test="addr_county != null">addr_county,</if>
+            <if test="addr_detail != null">addr_detail,</if>
+            <if test="guaranty != null">guaranty,</if>
+            <if test="remark != null">remark,</if>
+            <if test="create_id != null">create_id,</if>
+            <if test="create_time != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="serial_number != null">#{serial_number},</if>
+            <if test="franchisee_name != null">#{franchisee_name},</if>
+            <if test="responsible_person_name != null">#{responsible_person_name},</if>
+            <if test="franchisee_account != null">#{franchisee_account},</if>
+            <if test="franchisee_pssword != null">#{franchisee_pssword},</if>
+            <if test="mobile != null">#{mobile},</if>
+            <if test="franchisee_region != null">#{franchisee_region},</if>
+            <if test="addr_province != null">#{addr_province},</if>
+            <if test="addr_city != null">#{addr_city},</if>
+            <if test="addr_county != null">#{addr_county},</if>
+            <if test="addr_detail != null">#{addr_detail},</if>
+            <if test="guaranty != null">#{guaranty},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="create_id != null">#{create_id},</if>
+            <if test="create_time != null">#{create_time},</if>
+        </trim>
+    </insert>
+
+    <!-- 根据店铺编号查询店铺信息 -->
+    <select id="getFranchiseenumber" resultType="PageData" parameterType="Object">
+        SELECT * FROM franchisee WHERE serial_number = #{serial_number}
+    </select>
+
+    <!-- 后台管理的首页 -->
+    <select id="findList" resultType="PageData" >
+        select
+        IFNULL((select COUNT(*)
+        from product_order
+        where to_days(`create_time`) = to_days(now())and (`status`=3 or `status`=4)),0)今日下单量,
+        IFNULL((select COUNT(*)
+        from member
+        where to_days(`create_time`) = to_days(now())),0)今日新增会员数目,
+        IFNULL((select SUM(order_price)
+        from product_order
+        where to_days(`create_time`) = to_days(now())and (`status`=3 or `status`=4)),0)今日营业额,
+        IFNULL((select COUNT(*) from `product_order`
+        where date(`create_time`)>= date_sub(curdate(), INTERVAL 7 DAY) and (`status`=3 or `status`=4)),0)近七天下单量,
+        IFNULL((select SUM(order_price)from `product_order`
+        where  date(`create_time`) >=date_sub(curdate(), INTERVAL 7 DAY)  and (`status`=3 or `status`=4)),0)近七天营业额,
+        IFNULL((select COUNT(*)
+        from member
+        where  date(`create_time`)>= date_sub(curdate(), INTERVAL 7 DAY)),0)近七天新增会员数,
+
+        IFNULL((select COUNT(*) from `product_order`
+        where date_sub(curdate(), INTERVAL 30 DAY) &lt;= date(`create_time`) and (`status`=3 or `status`=4)),0)近30天下单量,
+        IFNULL((select SUM(order_price)from `product_order`
+        where date_sub(curdate(), INTERVAL 30 DAY) &lt;= date(`create_time`) and (`status`=3 or `status`=4)
+        ),0)近30天营业额,
+        IFNULL((select COUNT(*)
+        from member
+        where date_sub(curdate(), INTERVAL 7 DAY) &lt;= date(`create_time`)),0)近30天新增会员数,
+
+
+        IFNULL((select COUNT(*) from `product_order`
+        where DATE_FORMAT(create_time, '%Y%m') = DATE_FORMAT(curdate() , '%Y%m')and (`status`=3 or `status`=4)),0)本月天下单量,
+        IFNULL((select SUM(order_price)from `product_order`
+        where DATE_FORMAT(create_time, '%Y%m') = DATE_FORMAT(curdate() , '%Y%m') and (`status`=3 or `status`=4)
+        ),0)本月营业额,
+        IFNULL((select COUNT(*)
+        from member
+        where DATE_FORMAT(create_time, '%Y%m') = DATE_FORMAT(curdate() , '%Y%m')),0)本月新增会员数
+
+
+
+
+
+
+
+
+
+
+
+
+    </select>
+</mapper>

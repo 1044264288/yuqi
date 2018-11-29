@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.UserDao">
+
+    <!-- 用户登陆 -->
+    <select id="getUser" resultType="PageData" parameterType="String">
+        SELECT * FROM tb_user
+        <trim prefix="where">
+            <if test="accountname != null and password != null ">
+                accountname = #{accountname} AND `password` = #{password}
+            </if>
+        </trim>
+    </select>
+
+    <!-- 修改密码 -->
+    <update id="updateUser" parameterType="Integer">
+        update tb_user
+        <set>
+            <if test="password != null and password != ''">
+                password = #{password}
+            </if>
+        </set>
+        where platform_user_id = #{platform_user_id}
+    </update>
+
+    <!-- 新增用户 -->
+    <insert id="insertUser" parameterType="PageData">
+        insert into tb_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="corporate_id != null">corporate_id,</if>
+            <if test="accountname != null">accountname,</if>
+            <if test="password != null">password,</if>
+            <if test="name != null">name,</if>
+            <if test="mobile_phone != null">mobile_phone,</if>
+            <if test="role_id != null">role_id,</if>
+            <if test="create_user_id != null">create_user_id,</if>
+            <if test="create_time != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="corporate_id != null">#{corporate_id},</if>
+            <if test="accountname != null">#{accountname},</if>
+            <if test="password != null">#{password},</if>
+            <if test="name != null">#{name},</if>
+            <if test="mobile_phone != null">#{mobile_phone},</if>
+            <if test="role_id != null">#{role_id},</if>
+            <if test="create_user_id != null">#{create_user_id},</if>
+            <if test="create_time != null">#{create_time},</if>
+        </trim>
+    </insert>
+
+    <!-- 根据用户id查询用户 -->
+    <select id="getUserId" resultType="PageData" parameterType="Integer">
+        SELECT * FROM tb_user WHERE platform_user_id = #{platform_user_id}
+    </select>
+</mapper>

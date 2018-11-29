@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.BalanceDao">
+
+    <!-- 查询充值金额 -->
+    <select id="getBalance" resultType="PageData">
+        SELECT * FROM balance_pay_amount as p WHERE 1=1
+        <if test="id != null">
+            and p.id = #{id}
+        </if>
+        <if test="state != null">
+            and p.state = #{state}
+        </if>
+    </select>
+
+    <!-- 增加充值金额 -->
+    <insert id="insertBalance" parameterType="PageData">
+        INSERT INTO balance_pay_amount
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="amount != null">
+                amount,
+            </if>
+            <if test="given_money != null">
+                given_money,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+
+            <if test="create_time != null">
+                create_time,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="discount != null">
+                discount,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="amount != null">
+                #{amount},
+            </if>
+            <if test="given_money != null">
+                #{given_money},
+            </if>
+            <if test="remark != null">
+                #{remark},
+            </if>
+            <if test="create_time != null">
+                #{create_time},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="discount != null">
+                #{discount},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 修改充值金额 -->
+    <update id="updateBalance" parameterType="PageData">
+        update balance_pay_amount
+        <set>
+            <if test="amount != null">amount=#{amount},</if>
+            <if test="given_money != null">given_money=#{given_money},</if>
+            <if test="remark != null">remark=#{remark},</if>
+            <if test="create_time != null">create_time=#{create_time},</if>
+            <if test="status != null">status=#{status},</if>
+            <if test="discount != null">discount=#{discount}</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!-- 删除充值金额 -->
+    <delete id="deleteBanlance" parameterType="PageData">
+        DELETE
+        FROM
+	    balance_pay_amount
+        WHERE
+	    id =#{id}
+    </delete>
+
+
+
+</mapper>

@@ -1,0 +1,40 @@
+package com.pyjh.clothing.dao;
+
+import com.pyjh.clothing.entity.PageData;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface CustomDao {
+
+    /**
+     * 根据id查询体量类型信息
+     *
+     * @return
+     */
+    List<PageData> getCustomTypeByMember(Integer memberId);
+
+    /**
+     * 根据id查询体量信息
+     *
+     * @return
+     */
+    PageData getCustomByMember(Integer memberId);
+
+    /**
+     * 修改用户体量信息
+     *
+     * @return
+     */
+    Integer editCustomByMember(PageData pageData);
+
+    /**
+     * 用户量体信息录入
+     *
+     * @param pageData
+     * @return
+     */
+    Integer addCustomByMember(PageData pageData);
+
+}

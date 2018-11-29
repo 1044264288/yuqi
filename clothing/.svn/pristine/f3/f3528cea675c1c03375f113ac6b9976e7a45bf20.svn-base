@@ -1,0 +1,42 @@
+package com.pyjh.clothing.service.impl;
+
+import com.pyjh.clothing.dao.CustomDao;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.CustomService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+@Service("customService")
+public class CustomServiceImpl implements CustomService {
+
+    @Resource
+    CustomDao customDao;
+
+    @Override
+    public List<PageData> getCustomTypeByMember(Integer memberId) {
+        return customDao.getCustomTypeByMember(memberId);
+    }
+
+    @Override
+    public PageData getCustomByMember(Integer memberId) {
+        return customDao.getCustomByMember(memberId);
+    }
+
+    @Override
+    public boolean editCustomByMember(PageData pageData) {
+        if (customDao.editCustomByMember(pageData) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean addCustomByMember(PageData pageData) {
+        if (customDao.addCustomByMember(pageData) > 0) {
+            return true;
+        }
+        return false;
+    }
+}

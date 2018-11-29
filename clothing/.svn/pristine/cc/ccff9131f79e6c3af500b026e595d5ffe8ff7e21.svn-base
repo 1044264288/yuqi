@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.ProductDao">
+
+    <!-- 查询所有商品 -->
+    <select id="getProduct" resultType="PageData">
+        select * from product where 1 = 1
+        <if test="corporateId != null and corporateId != ''">
+            and corporate_id = #{corporateId}
+        </if>
+        <if test="typeId != null and typeId != ''">
+            and product_type_id = #{typeId}
+        </if>
+        <if test="franId != null and franId != ''">
+            and franchisee_type_id = #{franId}
+        </if>
+        <if test="productId != null and productId != ''">
+            and  product_id = #{productId}
+        </if>
+        <if test="recommend != null and recommend != ''">
+            and  if_recommend = #{recommend}
+        </if>
+    </select>
+
+</mapper>

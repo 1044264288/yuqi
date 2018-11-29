@@ -1,0 +1,253 @@
+package com.pyjh.clothing.service;
+
+import com.pyjh.clothing.entity.PageData;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
+
+public interface ProductService {
+    /**
+     * 查询所有商品
+     *
+     * @return
+     */
+    Map<String, Object> getProduct(PageData pageData);
+
+    /**
+     * 根据商品id查询banner
+     *
+     * @return
+     */
+    List<PageData> getProductBanner(Integer productId);
+
+
+    /**
+     * 根据商品id查询detail
+     *
+     * @return
+     */
+    List<PageData> getProductDetail(Integer productId);
+
+    /**
+     * 增加商品
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProduct(PageData pageData);
+
+    /**
+     * 查询增加最大id
+     *
+     * @return
+     */
+    Integer selectProduct();
+
+    /**
+     * 增加商品轮播图
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProduct_banner(PageData pageData);
+
+    /**
+     * 删除banner图
+     *
+     * @param banner_id
+     * @return
+     */
+    Integer delectProduct_banner(String banner_id);
+
+    /**
+     * 增加商品图片
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProduct_detail(PageData pageData);
+
+    /**
+     * 删除detail图
+     *
+     * @param detail_id
+     * @return
+     */
+    Integer delectProduct_detail(String detail_id);
+
+    /**
+     * 修改商品信息
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProduct(PageData pageData);
+
+    /**
+     * 修改商品状态
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProductStatus(PageData pageData);
+
+    /**
+     * 新增商品类型
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProductType(PageData pageData);
+
+    /**
+     * 修改商品类型
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProductType(PageData pageData);
+
+
+    /**
+     * 新增商品风格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProductStyle(PageData pageData);
+
+    Integer deleteProductSku(String product_id);
+
+    /**
+     * 修改商品风格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProductStyle(PageData pageData);
+
+
+    /**
+     * 新增商品规格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProductSku(PageData pageData);
+
+    /**
+     * 新增商品规格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProductSkuValue(PageData pageData);
+
+    /**
+     * 新增商品规格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertProductSkuType(PageData pageData);
+
+    /**
+     * 修改商品规格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProductSku(PageData pageData);
+
+    /**
+     * 修改商品规格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProductSkuValue(PageData pageData);
+
+    /**
+     * 修改商品规格
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateProductSkuType(PageData pageData);
+
+    /**
+     * 获取商品分类列表
+     *
+     * @return
+     */
+    List<PageData> getProductType();
+
+    /**
+     * 查询商品风格
+     *
+     * @return
+     */
+    List<PageData> getProductStyle();
+
+    /**
+     * 查询商品规格
+     *
+     * @return
+     */
+    List<PageData> getProductSku(Integer productId);
+
+    /**
+     * 查询商品规格cal
+     *
+     * @param pageData
+     * @return
+     */
+    List<PageData> getProductSkuVal(PageData pageData);
+
+    /**
+     * 根据商品id查询基本信息
+     *
+     * @param productId
+     * @return
+     */
+    PageData getProductId(Integer productId);
+
+    /**
+     * 查询全部商品规格
+     *
+     * @return
+     */
+    List<PageData> getProductSkuId();
+
+    /**
+     * 查询全部homebanner图片
+     *
+     * @return
+     */
+    List<PageData> getHomeBanner();
+
+    /**
+     * 增加homebanner图片
+     *
+     * @param pageData
+     * @return
+     */
+    Integer insertHomeBanner(PageData pageData);
+
+    /**
+     * 修改homebanner图片状态
+     *
+     * @param pageData
+     * @return
+     */
+    Integer updateHomeBanner(PageData pageData);
+
+    /**
+     * 查询规格类型
+     *
+     * @param productId
+     * @return
+     */
+    List<PageData> getProductSkuType(Integer productId);
+}

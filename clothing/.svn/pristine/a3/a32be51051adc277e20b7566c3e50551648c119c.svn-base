@@ -1,0 +1,81 @@
+package com.pyjh.clothing.service.impl;
+
+import com.pyjh.clothing.dao.HomeBannerDao;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.HomeBannerService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
+
+@Service("homeBannerService")
+public class HomeBannerServiceImpl implements HomeBannerService {
+
+    @Resource
+    HomeBannerDao homeBannerDao;
+
+    @Override
+    public List<PageData> getHomeBanner() {
+        return homeBannerDao.getHomeBanner();
+    }
+
+    @Override
+    public boolean addHomeBanner(String url, String targetUrl, Integer ifVideo) {
+        PageData pageData = new PageData();
+        pageData.put("url", url);
+        pageData.put("targetUrl", targetUrl);
+        pageData.put("ifVideo", ifVideo);
+        if (homeBannerDao.addHomeBanner(pageData) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean editHomeBanner(String url, Integer homeBannerId, String targetUrl, Integer state, Integer ifVideo) {
+        PageData pageData = new PageData();
+        pageData.put("url", url);
+        pageData.put("homeBannerId", homeBannerId);
+        pageData.put("targetUrl", targetUrl);
+        pageData.put("state", state);
+        pageData.put("ifVideo", ifVideo);
+        pageData.put("updateTime", new Date());
+        if (homeBannerDao.editHomeBanner(pageData) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean addTypeBanner(String url, String targetUrl, Integer ifVideo) {
+        PageData pageData = new PageData();
+        pageData.put("url", url);
+        pageData.put("targetUrl", targetUrl);
+        pageData.put("ifVideo", ifVideo);
+        if (homeBannerDao.addHomeBanner(pageData) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean editTypeBanner(String url, Integer homeBannerId, String targetUrl, Integer state, Integer ifVideo) {
+        PageData pageData = new PageData();
+        pageData.put("url", url);
+        pageData.put("homeBannerId", homeBannerId);
+        pageData.put("targetUrl", targetUrl);
+        pageData.put("state", state);
+        pageData.put("ifVideo", ifVideo);
+        pageData.put("updateTime", new Date());
+        if (homeBannerDao.editHomeBanner(pageData) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<PageData> getTypeBanner() {
+        return homeBannerDao.getTypeBanner();
+    }
+}

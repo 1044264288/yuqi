@@ -1,0 +1,106 @@
+/**
+ * _______________ ______________ ______________ _____________ ____________ ____________ ___________ __________ ________ _______ _______ ______ _____ ____ ____ ___ ___ ___ ___ ____ _____ ______ ________
+ */
+package com.pyjh.clothing.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.OrderService;
+import com.pyjh.clothing.util.CodeMessage;
+import com.pyjh.clothing.util.DateTime;
+import com.pyjh.clothing.util.Message;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+@CrossOrigin(value = "*")
+@RestController
+@RequestMapping("order")
+@Api(value = "order", description = "订单接口")
+public class OrderController extends CodeMessage {
+
+    @Resource
+    OrderService orderService;
+   /* @Resource
+    KdniaoSubscribeAPI kdniaoSubscribeAPI;*/
+
+
+    @ApiOperation("查询全部订单")
+    @RequestMapping(value = "getOrder", method = RequestMethod.GET)
+    public String getOrder(Integer memberId, Integer franchiseeId, String orderCode) {
+        PageData pageData = new PageData();
+        if (memberId != null) {
+            pageData.put("memberId", memberId);
+            pageData.put("franchiseeId", franchiseeId);
+            pageData.put("orderCode", orderCode);
+        }
+        String res = JSON.toJSONString(orderService.getOrder(pageData));
+        if (res != null) {
+            return Message.mesTrue(code_200, res, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("修改订单")
+    @PutMapping(value = "/updateOrder")
+    public String updateOrderStatus(@RequestParam String pageData){
+        PageData pageData1 = JSON.parseObject(pageData,PageData.class);
+        System.out.println(pageData1);
+
+        pageData1.put("send_time",DateTime.GetNowDate());
+        if(pageData1 != null){
+            String data = JSON.toJSONString(orderService.updateOrder(pageData1));
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询全部订单和快递单")
+    @GetMapping(value = "/getOrderEx")
+    public String getOrderEx(){
+        List<PageData> pageDataList = orderService.getOrderEx();
+        if(pageDataList != null){
+            String data = JSON.toJSONString(pageDataList);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询全部快递名称")
+    @GetMapping(value = "/getExpress")
+    public String getExpress(){
+        List<PageData> pageDataList = orderService.getExpress();
+        if(pageDataList != null){
+            String data = JSON.toJSONString(pageDataList);
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("查询全部快递名称")
+    @GetMapping(value = "/getOrdercode")
+    public String getOrdercode(@RequestParam String order_code){
+        if(order_code != null){
+            String data = JSON.toJSONString(orderService.getOrdercode(order_code));
+            return Message.mesTrue(code_200, data, message_200);
+        }
+        return Message.mesFalse(code_501, message_501);
+    }
+
+    @ApiOperation("")
+    @PostMapping(value = "/getOrders")
+    public String getOrders(String pageData){
+        Map<String,String> maps = JSON.parseObject(pageData,Map.class);
+        String url = "http://api.kdniao.cc/Ebusiness/EbusinessOrderHandle.aspx";
+        //String data = JSON.toJSONString(kdniaoSubscribeAPI.sendPost(url,maps));
+       /* if(data != null){
+            return Message.mesTrue(code_200, data, message_200);
+        }*/
+        return Message.mesFalse(code_501, message_501);
+    }
+}

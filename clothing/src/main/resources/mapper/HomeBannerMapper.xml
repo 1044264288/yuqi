@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pyjh.clothing.dao.HomeBannerDao">
+    <select id="getHomeBanner" resultType="PageData">
+        select * from home_banner
+        where 1=1
+        <if test="state != null and state != ''">
+            and state = #{state}
+        </if>
+    </select>
+
+    <select id="getTypeBanner" resultType="PageData">
+        select * from type_banner
+        where 1=1
+        <if test="state != null and state != ''">
+            and state = #{state}
+        </if>
+    </select>
+
+    <insert id="addHomeBanner" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="member_id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into home_banner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="url != null">
+                banner_url,
+            </if>
+            <if test="banner_video != null">
+                banner_video,
+            </if>
+            <if test="targetUrl != null">
+                target_url,
+            </if>
+            <if test="ifVideo != null">
+                if_video,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="url != null">
+                #{url},
+            </if>
+            <if test="banner_video != null">
+                #{banner_video},
+            </if>
+            <if test="targetUrl != null">
+                #{targetUrl},
+            </if>
+            <if test="ifVideo != null">
+                #{ifVideo},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="addTypeBanner" parameterType="PageData">
+        <selectKey resultType="Integer" order="AFTER" keyProperty="member_id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into type_banner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="url != null">
+                banner_url,
+            </if>
+            <if test="targetUrl != null">
+                target_url,
+            </if>
+            <if test="ifVideo != null">
+                if_video,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="url != null">
+                #{url},
+            </if>
+            <if test="targetUrl != null">
+                #{targetUrl},
+            </if>
+            <if test="ifVideo != null">
+                #{ifVideo},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="editHomeBanner" parameterType="PageData">
+        update home_banner
+        <set>
+            <if test="banner_url != null">
+                banner_url = #{banner_url,jdbcType=VARCHAR},
+            </if>
+            <if test="targetUrl != null">
+                target_url = #{targetUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="ifVideo != null">
+                if_video = #{ifVideo,jdbcType=INTEGER},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=INTEGER}
+            </if>
+        </set>
+        where home_banner_id = #{homeBannerId}
+    </update>
+
+    <update id="editTypeBanner" parameterType="PageData">
+        update type_banner
+        <set>
+            <if test="banner_url != null">
+                banner_url = #{banner_url,jdbcType=VARCHAR},
+            </if>
+            <if test="targetUrl != null">
+                target_url = #{targetUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="ifVideo != null">
+                if_video = #{ifVideo,jdbcType=INTEGER},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=INTEGER}
+            </if>
+        </set>
+        where home_banner_id = #{homeBannerId}
+    </update>
+    <!-- 根据ID查看所有信息home_banner -->
+    <select id="findforEntityHom" parameterType="PageData"
+            resultType="PageData">
+        SELECT * FROM home_banner
+        where home_banner_id = #{home_banner_id}
+    </select>
+    <!-- 根据ID查看所有信息 type_banner-->
+    <select id="findforEntityType" parameterType="PageData"
+            resultType="PageData">
+        SELECT * FROM type_banner
+        where home_banner_id = #{home_banner_id}
+    </select>
+
+
+
+
+
+
+
+</mapper>

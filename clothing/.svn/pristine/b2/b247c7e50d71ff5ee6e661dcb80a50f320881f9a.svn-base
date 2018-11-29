@@ -1,0 +1,79 @@
+package com.pyjh.clothing.service.impl;
+
+import com.pyjh.clothing.dao.MemberDao;
+import com.pyjh.clothing.entity.PageData;
+import com.pyjh.clothing.service.MemberService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+@Service("memberService")
+public class MemberServiceImpl implements MemberService {
+
+    @Resource
+    MemberDao memberDao;
+
+    @Override
+    public PageData memberLogin(String mobile, String password) {
+        PageData pageData = new PageData();
+        pageData.put("mobile", mobile);
+        pageData.put("password", password);
+        return memberDao.memberLogin(pageData);
+    }
+
+    /**
+     * 查询全部用户信息
+     *
+     * @return
+     */
+    @Override
+    public List<PageData> getmember() {
+        return memberDao.getmember();
+    }
+
+    /**
+     * 根据member_id查询用户是不是新用户
+     *
+     * @param member_id
+     * @return
+     */
+    @Override
+    public PageData getMemberId(Integer member_id) {
+        return memberDao.getMemberId(member_id);
+    }
+
+    @Override
+    public boolean findForEntity(String mobile) {
+        PageData pageData = new PageData();
+        pageData.put("mobile", mobile);
+        if (memberDao.findForEntity(pageData) == null) {
+            System.out.println(memberDao.findForEntity(pageData));
+            return true;
+        }
+        System.out.println(memberDao.findForEntity(pageData));
+        return false;
+    }
+
+    @Override
+    public Integer addMember(PageData pageData) {
+        return memberDao.addMember(pageData);
+    }
+
+    @Override
+    public Integer editMember(PageData pageData) {
+        return memberDao.editMember(pageData);
+    }
+
+    /**
+     * 修改用户user_status状态
+     *
+     * @param member_id
+     * @param user_status
+     * @return
+     */
+    @Override
+    public Integer updateMember(Integer member_id, Integer user_status) {
+        return memberDao.updateMember(member_id, user_status);
+    }
+}
